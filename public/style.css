@@ -1,0 +1,169 @@
+body {
+  background-image: linear-gradient(#bafacd, #747e99);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-attachment: fixed;
+  color: #ffffff;
+  font-size: large;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  font-family: 'Arial', cursive;
+}
+
+
+h1, h2, h3, h4, h5, h6 {
+  color: #000000;
+}
+
+header {
+  margin-top: 50px;
+  display: block;
+  background-blend-mode: color;
+  font-family: 'Times New Roman', cursive;
+  height: 100px;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 0;
+  flex-shrink: 0;
+}
+
+.login-text {
+  margin-right: 10px;
+  font-size: 1.2rem;
+  color: #ffffff;
+}
+
+.login-button {
+  padding: 8px 16px;
+  font-size: 1rem;
+  background-color: #75eaff;
+  color: rgb(0, 0, 0);
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.login-background {
+  background: url('images/bkg.jpeg');
+  background-position: 1px center; /* Moves the image 10% to the right */
+  background-size: 130%; 
+  background-attachment: fixed;
+  
+  height: 100vh; 
+  width: 100%;
+}
+
+
+.login-button:hover {
+  background-color: #000000;
+}
+
+.container {
+  text-align: center;
+}
+
+.navbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+  background-color:#f1f1f100;
+  padding: 10px 0;
+}
+
+
+.navbar a {
+  display: block;
+  color: #000000;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-size: 30px;
+  border-radius: 50px;
+  margin: 0 10px; /* Adds spacing between links */
+  transition: background 0.3s;
+}
+
+.navbar a:hover {
+  background: #bdc5d8b6;
+  color: black;
+}
+
+.navbar a.active {
+  background-color: #c2cff1b6;
+  color: rgb(0, 0, 0);
+}
+
+.main {
+  margin-top: 20px; /* Adjust based on visual spacing */
+  flex: 1;
+  padding: 16px;
+}
+
+
+main.container {
+  flex: 1;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  max-width: 900px;
+  padding-bottom: 90px;
+  font-size: x-large;
+  text-align: justify;
+}
+
+.login-title-container {
+  flex: 1;
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-start; /* Aligns the container to the left */
+  max-width: 900px;
+  padding-bottom: 90px;
+  font-size: x-large;
+  text-align: justify;
+  margin-left: -200px; /* Moves the container slightly to the left */
+}
+
+.login-container {
+  display: flex; /* Enables flexbox */
+  justify-content: center; /* Centers content horizontally */
+  align-items: center; /* Centers content vertically */
+  flex-direction: column; /* Stacks child elements vertically */
+  padding: 20px; /* Adds internal spacing */
+  position: relative; /* Allows positioning with top, right, etc. */
+  right: -110px; /* Adjusts horizontal position */
+  top: 100px;
+  width: 300px; /* Sets a fixed width */
+  height: auto; /* Makes height adapt to content */
+  background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  border-radius: 10px; /* Rounds the corners */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Adds a subtle shadow */
+}
+
+.content-box {
+  background: none;
+  padding: 10px 20px;
+  margin-bottom: 20px;
+  border-radius: 15px;
+  max-height: fit-content;
+  flex: 1;
+  overflow: auto;
+  height: 100%;
+}
+
+.content-box.main-content{
+  min-height: 100%;
+}
+
+h1.main-title {
+  color: #000000;
+  padding-bottom: 0.4em;
+  margin-top: 1rem;
+  margin-bottom: 0.7em;
+}
+
+

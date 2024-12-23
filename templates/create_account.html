@@ -1,0 +1,30 @@
+{% extends '_base.html' %}
+
+{% block content %}
+<br>
+<br>
+<h1 class="main-title text-center">Join Chitra!</h1>
+<p class="text-center">
+    Please create an account.
+</p>
+<br>
+    <div class="signup-box">
+        <h2>Create an Account</h2>
+        <form method="POST" action="/create">
+            <label for="new-username">Username:</label><br>
+            <input type="text" id="new-username" name="username" placeholder="Choose a username" required><br>
+            <label for="new-password">Password:</label><br>
+            <input type="password" id="new-password" name="password" placeholder="Create a password" required><br>
+            <label for="confirm-password">Confirm Password:</label><br>
+            <input type="password" id="confirm-password" name="confirm_password" placeholder="Confirm password" required><br>
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            <div style="color: red;">{{ messages[0] }}</div>
+            {% endif %}
+            {% endwith %}
+            <button type="submit" class="login-button">Sign Up</button>
+        </form>
+    </div>
+</div>
+<br>
+{% endblock content %}

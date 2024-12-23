@@ -1,0 +1,22 @@
+{% extends '_base.html' %}
+
+{% block buttons %}
+<div class="navbar">
+	<a class="nav-item nav-link" href="/home">Home</a>
+	<a class="nav-item nav-link active" href="/portfolio">Portfolio</a>
+	<a class="nav-item nav-link" href="/newtransaction">New Transaction</a>
+	<a class="nav-item nav-link" href="/invest">Invest</a>
+	{% if not authenticated %}
+	<a class="nav-item nav-link" href="/login">Login</a>
+	{% else %}
+	<a class="nav-item nav-link" href="/logout">Logout</a>
+	{%endif%}
+</div>
+{% endblock buttons %}
+
+
+{% block content%}
+<br>
+<br>
+<h1>TODO: ADD PORTFOLIO</h1>
+{% endblock content%}

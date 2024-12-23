@@ -1,0 +1,54 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <link href="./public/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="./public/style.css">
+
+</head>
+<body class="login-background">
+	
+	<header class="site-header">
+		<div class="header-content login-title-container">
+      <div class="container">
+			<h1><font style="color: #f6ffda; text-align: left; font-size: 4rem;">
+        
+        <strong>Chitra Financial <br> Manager</strong></font>
+      
+		  </div>
+      </h1>
+    <br>
+	</header>
+
+<main class="login-container">
+  
+  <div class="row justify-content-center">
+    <div>
+    
+      <h1 class="main-title text-center" style="color: aliceblue;">Login</h1>
+      <br>
+      <div>
+        <form method="post" class="login-form">
+          {% if error_msg %}
+          <div style="color: rgb(255, 138, 138);">{{ error_msg }}</div>
+          {% endif %}
+          <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <input type="text" class="form-control" name="username" id="username">
+          </div>
+          <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" class="form-control" name="password" id="password">
+          </div>
+          <button type="submit" class="btn btn-primary">Login</button>
+        </form>
+        <br>
+        <footer>Don't have an account? <a href="/create" style="color:rgb(255, 255, 255)";>Create one.</a> </footer>
+
+      </div>
+      </div>
+  </div>
+</main>

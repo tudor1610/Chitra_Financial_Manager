@@ -1,0 +1,32 @@
+<!--Copyright Tudor Brandibur, 2023-2024-->
+{% extends '_base.html' %}
+
+{% block buttons %}
+<div class="navbar">
+	<a class="nav-item nav-link active" href="/home">Home</a>
+	<a class="nav-item nav-link" href="/portfolio">Portfolio</a>
+	<a class="nav-item nav-link" href="/newtransaction">New Transaction</a>
+	<a class="nav-item nav-link" href="/invest">Invest</a>
+	{% if not authenticated %}
+	<a class="nav-item nav-link" href="/login">Login</a>
+	{% else %}
+	<a class="nav-item nav-link" href="/logout">Logout</a>
+	{%endif%}
+</div>
+{% endblock buttons %}
+
+{% block header%}
+{% if authenticated %}
+	<h2>Hi, {{username}}!</h2>
+{%endif%}
+{% endblock header%}
+
+{% block content%}
+<br>
+<h1 class="text-center">Welcome to Chitra!</h1>
+<br>
+<br>
+<p> BE CHITROS!</p>
+
+{% endblock content %}
+

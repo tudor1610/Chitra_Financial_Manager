@@ -1,0 +1,42 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <link href="./public/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="./public/style.css">
+
+</head>
+<body>
+	
+	<header class="site-header">
+		<div class="container header-content">
+			<br>
+			<h1><font size="+10" style="color: #323943;"><strong>Chitra Financial Manager</strong></font></h1>
+			{% block header%}
+			{% endblock header%}
+		</div>
+	</header>
+
+
+	{% block buttons%}
+  	{% endblock buttons%}
+
+	<main class="container">
+		<div class="row justify-content-center">
+			<div>
+				<div>
+					<br>
+
+					{% block content%}
+					{% endblock content%}
+
+				</div>
+		  	</div>
+		</div>
+	</main>
+
+</body>
+</html>
