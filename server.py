@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, redirect, flash
+from flask import Flask, request, render_template, redirect, flash, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 import time
@@ -16,6 +16,12 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)  # Hashed password
 
+# Mock chart data (for simplicity, not stored in the database)
+chart_data = {
+    "current_account": [2, 3, 4, 6, 8, 10, 12],
+    "savings_account_1": [10, 20, 30, 40, 50],
+    "savings_account_2": [5, 15, 25, 35, 45]
+}
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
@@ -31,7 +37,20 @@ def default():
 
 @app.route("/home")
 def home():
-    return render_template('home.html', authenticated=session["authenticated"], username=session["username"])
+    if not session["authenticated"]:
+        flash("Please log in to access your dashboard.")
+        return redirect("/login")
+
+    # Mock user data for the dashboard
+    user_data = {
+        "username": session["username"],
+        "current_balance": 7363.34,
+        "spent_this_month": 0,
+        "living_expenses": 0,
+        "food_expenses": 0
+    }
+
+    return render_template('home.html', data=user_data)
 
 @app.route("/create", methods=['GET', 'POST'])
 def create():
@@ -82,7 +101,7 @@ def login():
             error_msg = "Incorrect username or password"
             
     return render_template("login.html", error_msg=error_msg)
-   
+
 
 @app.route("/logout")
 def logout():
@@ -102,6 +121,12 @@ def newtransaction():
 def invest():
     return render_template('invest.html', authenticated=session["authenticated"], username=session["username"]);
 
+@app.route("/chart-data/<chart_type>")
+def chart_data_api(chart_type):
+    if chart_type in chart_data:
+        return jsonify(chart_data[chart_type])
+    return jsonify([])
+
 @app.errorhandler(404)
 def error404(code):
     return "HTTP Error 404 - Page Not Found"
@@ -113,4 +138,3 @@ if __name__ == "__main__":
         db.create_all()
 
     app.run(debug=True, port=5000)
-

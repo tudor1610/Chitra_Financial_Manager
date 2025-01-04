@@ -1,5 +1,5 @@
 body {
-  background-image: linear-gradient(#bafacd, #747e99);
+  background-image: linear-gradient(#747e99, #bafacd);
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
@@ -10,7 +10,7 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  font-family: 'Arial', cursive;
+  font-family: Arial, sans-serif;
 }
 
 
@@ -87,6 +87,74 @@ header {
   .signup-box footer {
     margin-top: 7px;
   }
+
+  .home-banner {
+    background-color: #606e78;
+    color: white;
+    text-align: center;
+    padding: 2em 0;
+    font-size: 1.5em;
+    position: relative;
+}
+
+.home-banner .icon {
+    position: absolute;
+    top: 50%;
+    left: 60%;
+    transform: translateY(-50%);
+    font-size: 2em;
+}
+
+.home-section {
+    padding: 2em;
+    position: relative;
+}
+
+.home-section h2 {
+    margin-bottom: 1em;
+    color: #ffffff;
+    text-decoration: underline;
+}
+
+.home-see-more {
+    position: absolute;
+    right: 2em;
+    top: 2em;
+    text-decoration: underline;
+    color: #ffffff;
+    font-weight: bold;
+}
+
+.home-cards {
+    display: flex;
+    gap: 1em;
+}
+
+.home-cards h3 {
+    color: #46555c;
+}
+
+.home-cards p {
+    color: #46555c;
+}
+
+.home-card {
+    flex: 1;
+    background-color: #dce7db;
+    padding: 1em;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    position: relative;
+}
+
+.home-card .icon {
+    font-size: 2em;
+    position: absolute;
+    color: #46555c;
+    top: 50%;
+    right: 1em;
+    transform: translateY(-50%);
+}
 
 .container {
   text-align: center;
@@ -171,7 +239,7 @@ main.container {
 }
 
 .form-label {
-    font-size: 1.5rem;
+    font-size: 1rem;
 }
 
 .form-control {
@@ -180,13 +248,14 @@ main.container {
 }
 
 .btn-primary {
-    font-size: 1.2rem;
+    font-size: 1rem;
     padding: 10px 20px; /* Optional: adjust padding */
 }
 
 /* Reduce space below the Login title */
 .main-title {
     margin-bottom: 5px;
+    font-size: x-large;
 }
   
   /* Reduce space around the form */
