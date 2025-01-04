@@ -62,6 +62,32 @@ header {
   background-color: #000000;
 }
 
+
+.signup-box {
+  margin-top: 1px;
+  padding: 10px;
+}
+
+.signup-box h2 {
+  margin-bottom: 15px;
+}
+
+  .signup-box form {
+    margin-top: 0;
+  }
+
+  .signup-box label {
+    margin-bottom: 5px;
+  }
+
+  .signup-box input {
+    margin-bottom: 10px;
+  }
+
+  .signup-box footer {
+    margin-top: 7px;
+  }
+
 .container {
   text-align: center;
 }
@@ -144,6 +170,42 @@ main.container {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Adds a subtle shadow */
 }
 
+.form-label {
+    font-size: 1.5rem;
+}
+
+.form-control {
+    font-size: 1.2rem;
+    padding: 5px; /* Optional: adjust padding for better appearance */
+}
+
+.btn-primary {
+    font-size: 1.2rem;
+    padding: 10px 20px; /* Optional: adjust padding */
+}
+
+/* Reduce space below the Login title */
+.main-title {
+    margin-bottom: 5px;
+}
+  
+  /* Reduce space around the form */
+.login-form {
+    margin-top: 0;
+    padding-top: 0;
+}
+  
+  /* Adjust padding for the login container */
+.login-container {
+    padding-top: 20px; /* Reduce top padding */
+    padding-bottom: 20px; /* Reduce bottom padding */
+}
+ 
+  /* Optional: Control spacing between form elements */
+.mb-3 {
+    margin-bottom: 10px;
+}
+  
 .content-box {
   background: none;
   padding: 10px 20px;
@@ -161,9 +223,9 @@ main.container {
 
 h1.main-title {
   color: #000000;
-  padding-bottom: 0.4em;
+  padding-bottom: 0.2em;
   margin-top: 1rem;
-  margin-bottom: 0.7em;
+  margin-bottom: 0.05em;
 }
 
 

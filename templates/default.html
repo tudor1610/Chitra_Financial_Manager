@@ -1,12 +1,74 @@
-{% extends '_base.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home Page</title>
+  <link href="./public/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="./public/style.css">
+  <style>
+    /* Inline CSS for now; move to style.css later */
+    body {
+      margin: 0;
+      padding: 0;
+      background: url('../public/images/default_bkg.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      font-family: Arial, sans-serif;
+      height: 100vh; 
+      width: 100%;
+    }
 
-{% block content %}
-<br>
-<br>
-<h1 class="main-title text-center">Welcome to Chitra!</h1>
-<p class="text-center" style="font-size: xx-large">
-    Please <br> <a href="/login" style="color:rgb(0, 19, 105)";>log in</a> <br> to access
-	your account <br> OR <br> <a href="/create" style="color:rgb(0, 19, 105)";>create an account.</a>
-</p>
+    .center-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+      gap: 50px;
+      position: relative;
+    }
 
-{% endblock content %}
+    .card {
+      background: rgba(12, 26, 13, 0.7);
+      border-radius: 10px;
+      padding: 20px;
+      margin: 10px;
+      width: 375px;
+    }
+
+    .card h1 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+      color: #ffffff;
+    }
+
+    .card p {
+      font-size: 1.2rem;
+      margin-bottom: 20px;
+      color: #ffffff;
+    }
+
+    .card a {
+      color: #ffffff;
+      text-decoration: underline;
+    }
+
+    .card a:hover {
+      color: aliceblue;
+    }
+  </style>
+</head>
+<body>
+  <div class="center-content">
+    <div class="card">
+        <h1>Welcome to <br> Chitra Financial<br> Manager!</h1>
+    </div>
+    <div class="card">
+      <p>Please<br> <a href="/login">Log in</a><br> to access your account<br> OR<br> <a href="/create">create an account</a>.</p>
+    </div>
+  </div>
+</body>
+</html>
