@@ -6,7 +6,7 @@ from datetime import datetime
 
 app = Flask(__name__, static_folder="public")
 app.secret_key = "yoyo"
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///financial_manager.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
