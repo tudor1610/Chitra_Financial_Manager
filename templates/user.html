@@ -22,17 +22,19 @@
                         <!-- Display Cards for the Account -->
                         <h4>Cards:</h4>
                         {% if account.cards %}
-                            <ul>
-                                {% for card in account.cards %}
-                                    <li>
-                                        <strong>Card Type:</strong> {{ card.card_type }} <br>
-                                        <strong>Card Number:</strong> {{ card.card_number }}
-                                    </li>
-                                {% endfor %}
-                            </ul>
+                            <form action="/delete_card" method="POST">
+                                <select name="card_id" required>
+                                    <option value="">Select a card to delete</option>
+                                    {% for card in account.cards %}
+                                        <option value="{{ card.id }}">{{ card.card_type }} - {{ card.card_number }}</option>
+                                    {% endfor %}
+                                </select>
+                                <button type="submit" class="btn btn-danger">Delete Card</button>
+                            </form>
                         {% else %}
                             <p>No cards associated with this account.</p>
                         {% endif %}
+                        <a href="#" data-toggle="modal" data-target="#deleteAccountModal" data-account-id="{{ account.id }}" data-account-name="{{ account.account_name }}" class="btn btn-danger">Delete Account</a>
                     </li>
                 {% endfor %}
             </ul>
@@ -104,6 +106,46 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal to confirm account deletion -->
+    <div class="modal fade" id="deleteAccountModal" tabindex="-1" role="dialog" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteAccountModalLabel">Delete Account</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form method="POST" action="/delete_account">
+                    <div class="modal-body">
+                        <input type="hidden" name="account_id" id="account-id">
+                        <p>Are you sure you want to delete the account "<span id="account-name"></span>"? This action is irreversible.</p>
+                        <p class="text-danger">Note: You can only delete accounts with a balance of 0.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger">Delete Account</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 
-{% endblock %}
+{% endblock content %}
+
+{% block scripts %}
+<script>
+    // Set account ID and name for the delete modal
+    $('#deleteAccountModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);  // Button that triggered the modal
+        var accountId = button.data('account-id');  // Extract account ID from data-* attributes
+        var accountName = button.data('account-name');  // Extract account name from data-* attributes
+
+        var modal = $(this);
+        modal.find('.modal-body #account-id').val(accountId);  // Set account ID in the hidden input
+        modal.find('.modal-body #account-name').text(accountName);  // Display account name in the modal
+    });
+</script>
+{% endblock scripts %}

@@ -236,6 +236,63 @@ def create_card():
         flash(f"Error creating card: {str(e)}")
     return redirect("/user")
 
+# Route to delete an account
+@app.route("/delete_account", methods=["POST"])
+def delete_account():
+    if not session.get("authenticated"):
+        flash("Please log in to delete an account.")
+        return redirect("/login")
+    
+    account_id = request.form.get("account_id")  # Get the account ID from the form
+
+    if account_id:
+        account = Account.query.get(account_id)
+
+        if account:
+            if account.balance != 0:
+                flash("You can only delete an account with a balance of 0.")
+            else:
+                try:
+                    db.session.delete(account)
+                    db.session.commit()
+                    flash(f"Account '{account.account_name}' deleted successfully.")
+                except Exception as e:
+                    db.session.rollback()  # Rollback in case of any error
+                    flash(f"Error deleting account: {str(e)}")
+        else:
+            flash("Account not found.")
+    else:
+        flash("No account selected for deletion.")
+
+    return redirect("/user")
+
+# Route to delete a card
+@app.route("/delete_card", methods=["POST"])
+def delete_card():
+    if not session.get("authenticated"):
+        flash("Please log in to delete a card.")
+        return redirect("/login")
+    
+    card_id = request.form.get("card_id")  # Get the card ID from the form
+
+    if card_id:
+        card = Card.query.get(card_id)
+
+        if card:
+            try:
+                db.session.delete(card)
+                db.session.commit()
+                flash(f"Card {card.card_number} deleted successfully.")
+            except Exception as e:
+                db.session.rollback()  # Rollback in case of any error
+                flash(f"Error deleting card: {str(e)}")
+        else:
+            flash("Card not found.")
+    else:
+        flash("No card selected for deletion.")
+
+    return redirect("/user")
+
 @app.route("/chart-data/<chart_type>")
 def chart_data_api(chart_type):
     if chart_type in chart_data:
