@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -30,6 +29,20 @@
     
       <h1 class="main-title text-center" style="color: aliceblue;">Login</h1>
       <br>
+      
+      <!-- Display Flash Messages Here -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+              <div class="flash-messages">
+                  {% for category, message in messages %}
+                      <div class="flash-message {{ category }}">
+                          {{ message }}
+                      </div>
+                  {% endfor %}
+              </div>
+          {% endif %}
+      {% endwith %}
+
       <div>
         <form method="post" class="login-form">
           {% if error_msg %}
@@ -49,6 +62,9 @@
         <footer>Don't have an account? <a href="/create" style="color:rgb(255, 255, 255)";>Create one.</a> </footer>
 
       </div>
-      </div>
+    </div>
   </div>
 </main>
+
+</body>
+</html>

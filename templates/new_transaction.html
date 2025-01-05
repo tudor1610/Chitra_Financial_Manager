@@ -1,19 +1,52 @@
-{% extends '_base.html'%}
+{% extends '_base.html' %}
 
 {% block buttons %}
 <div class="navbar">
-	<a class="nav-item nav-link" href="/home">Home</a>
-	<a class="nav-item nav-link" href="/portfolio">Portfolio</a>
-	<a class="nav-item nav-link active" href="/newtransaction">New Transaction</a>
-	<a class="nav-item nav-link" href="/invest">Invest</a>
-	{% if not authenticated %}
-	<a class="nav-item nav-link" href="/login">Login</a>
-	{% else %}
-	<a class="nav-item nav-link" href="/logout">Logout</a>
-	{%endif%}
+    <a class="nav-item nav-link" href="/home">Home</a>
+    <a class="nav-item nav-link" href="/portfolio">Portfolio</a>
+    <a class="nav-item nav-link active" href="/newtransaction">New Transaction</a>
+    <a class="nav-item nav-link" href="/invest">Invest</a>
+    {% if not authenticated %}
+        <a class="nav-item nav-link" href="/login">Login</a>
+    {% else %}
+        <a class="nav-item nav-link" href="/logout">Logout</a>
+    {% endif %}
 </div>
 {% endblock buttons %}
 
-{%block content%}
-<h1>TODO: ADD TRANSACTION</h1>
-{%endblock content%}
+{% block content %}
+<body>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+		{% if messages %}
+			<div class="flash-messages">
+				{% for category, message in messages %}
+					<div class="flash-message {{ category }}">
+						{{ message }}
+					</div>
+				{% endfor %}
+			</div>
+		{% endif %}
+	{% endwith %}
+
+    <form method="POST" class="transaction-form">
+        <h1 class="text-center mb-4">Add a New Transaction</h1>
+        
+        <label for="transaction_type" class="transaction-label">Transaction Type:</label>
+        <select id="transaction_type" name="transaction_type" class="transaction-select">
+            <option value="Income">Income</option>
+            <option value="Expense">Expense</option>
+        </select>
+
+        <label for="date" class="transaction-label">Date:</label>
+        <input type="date" id="date" name="date" class="transaction-input" required>
+
+        <label for="amount" class="transaction-label">Amount:</label>
+        <input type="number" step="0.01" id="amount" name="amount" class="transaction-input" required>
+
+        <label for="merchant" class="transaction-label">Merchant:</label>
+        <textarea id="merchant" name="merchant" class="transaction-textarea" required></textarea>
+
+        <button type="submit" class="transaction-button">Add Transaction</button>
+    </form>
+</body>
+{% endblock content %}

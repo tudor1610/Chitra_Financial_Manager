@@ -2,19 +2,29 @@ from flask import Flask, request, render_template, redirect, flash
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 import time
+from datetime import datetime
 
 app = Flask(__name__, static_folder="public")
 app.secret_key = "yoyo"
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'  # SQLite database
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///financial_manager.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
-# User model
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
-    password = db.Column(db.String(200), nullable=False)  # Hashed password
+    password = db.Column(db.String(200), nullable=False)
+
+class Transaction(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    transaction_type = db.Column(db.String(10), nullable=False)
+    date = db.Column(db.String(10), nullable=False)
+    amount = db.Column(db.Float, nullable=False)
+    merchant = db.Column(db.String(100), nullable=False)
+
+    user = db.relationship('User', backref=db.backref('user_transactions', lazy=True))
 
 
 def allowed_file(filename):
@@ -72,7 +82,6 @@ def login():
         username = request.form.get("username", "")
         password = request.form.get("password", "")
 
-        # Query database for the user
         user = User.query.filter_by(username=username).first()
         if user and check_password_hash(user.password, password):
             session['authenticated'] = True
@@ -94,9 +103,38 @@ def logout():
 def portfolio():
     return render_template('portfolio.html', authenticated=session["authenticated"], username=session["username"])
 
-@app.route("/newtransaction")
-def newtransaction():
-    return render_template('new_transaction.html', authenticated=session["authenticated"], username=session["username"]);
+@app.route('/newtransaction', methods=['GET', 'POST'])
+def new_transaction():
+    if request.method == 'POST':
+        transaction_type = request.form.get('transaction_type')
+        date = request.form.get('date')
+        amount = float(request.form.get('amount'))
+        merchant = request.form.get('merchant')
+
+        if amount <= 0:
+            flash("Amount must be positive.", "error")
+            return redirect('/newtransaction')
+
+        user = User.query.filter_by(username=session['username']).first()
+
+        transaction = Transaction(
+            user_id=user.id,
+            transaction_type=transaction_type,
+            date=date,
+            amount=amount,
+            merchant=merchant
+        )
+
+        try:
+            db.session.add(transaction)
+            db.session.commit()
+            flash("Transaction added successfully!", "success")
+        except Exception as e:
+            flash(f"Error adding transaction: {str(e)}", "error")
+
+        return redirect('/newtransaction')
+
+    return render_template('new_transaction.html', authenticated=session['authenticated'], username=session['username'])
 
 @app.route("/invest")
 def invest():
@@ -108,9 +146,7 @@ def error404(code):
 
 if __name__ == "__main__":
 
-    # Create database tables
     with app.app_context():
         db.create_all()
 
     app.run(debug=True, port=5000)
-
