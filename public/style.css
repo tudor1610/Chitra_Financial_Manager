@@ -91,17 +91,15 @@ header {
   .home-banner {
     background-color: #606e78;
     color: white;
-    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     padding: 2em 0;
     font-size: 1.5em;
-    position: relative;
 }
 
 .home-banner .icon {
-    position: absolute;
-    top: 50%;
-    left: 60%;
-    transform: translateY(-50%);
+    margin-left: 0.5em;
     font-size: 2em;
 }
 

@@ -1,0 +1,109 @@
+{% extends "_base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1>Welcome, {{ data.username }}</h1>
+
+    <!-- User Balance -->
+    <div class="user-info">
+        <p><strong>Current Balance:</strong> {{ data.current_balance }} {{ data.main_currency }}</p>
+    </div>
+
+    <!-- Accounts Section -->
+    <h2>Your Accounts</h2>
+    <div class="accounts">
+        {% if data.accounts %}
+            <ul>
+                {% for account in data.accounts %}
+                    <li>
+                        <strong>Account Name:</strong> {{ account.account_name }} <br>
+                        <strong>Balance:</strong> {{ account.balance }} {{ data.main_currency }} <br>
+
+                        <!-- Display Cards for the Account -->
+                        <h4>Cards:</h4>
+                        {% if account.cards %}
+                            <ul>
+                                {% for card in account.cards %}
+                                    <li>
+                                        <strong>Card Type:</strong> {{ card.card_type }} <br>
+                                        <strong>Card Number:</strong> {{ card.card_number }}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p>No cards associated with this account.</p>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>You have no accounts yet. <a href="#" data-toggle="modal" data-target="#createAccountModal" class="btn btn-primary">Create an Account</a></p>
+        {% endif %}
+    </div>
+
+
+    <!-- Modal to create a new account -->
+    <div class="modal fade" id="createAccountModal" tabindex="-1" role="dialog" aria-labelledby="createAccountModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createAccountModalLabel">Create New Account</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form method="POST" action="/create_account">
+                    <div class="modal-body">
+                        <label for="account-name">Account Name:</label>
+                        <input type="text" id="account-name" name="account_name" placeholder="Enter account name" required><br>
+                        <label for="initial-balance">Initial Balance:</label>
+                        <input type="number" id="initial-balance" name="balance" placeholder="Enter initial balance" required><br>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Create Account</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal to create a card for an account -->
+    <div class="modal fade" id="createCardModal" tabindex="-1" role="dialog" aria-labelledby="createCardModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createCardModalLabel">Create Card for Account</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form method="POST" action="/create_card">
+                    <div class="modal-body">
+                        <!-- Dropdown to select the account -->
+                        <label for="account-select">Select Account:</label>
+                        <select id="account-select" name="account_id" required>
+                            <option value="" disabled selected>Select your account</option>
+                            {% for account in data.accounts %}
+                                <option value="{{ account.id }}">{{ account.account_name }}</option>
+                            {% endfor %}
+                        </select><br>
+
+                        <!-- Dropdown for card type selection -->
+                        <label for="card-type">Card Type:</label>
+                        <select id="card-type" name="card_type" required>
+                            <option value="Debit">Debit</option>
+                            <option value="Credit">Credit</option>
+                        </select><br>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Create Card</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

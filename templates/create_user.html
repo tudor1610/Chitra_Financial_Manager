@@ -9,17 +9,15 @@
 </head>
 <body class="login-background">
   
-	<header class="site-header">
-		<div class="header-content login-title-container">
+  <header class="site-header">
+    <div class="header-content login-title-container">
       <div class="container">
-			<h1><font style="color: #f6ffda; text-align: left; font-size: 4rem;">
-        
-        <strong>Chitra Financial <br> Manager</strong></font>
-      
-		  </div>
+        <h1><font style="color: #f6ffda; text-align: left; font-size: 4rem;">
+          <strong>Chitra Financial <br> Manager</strong></font>
+      </div>
       </h1>
     <br>
-	</header>
+  </header>
 
 <main class="login-container">
   
@@ -32,19 +30,30 @@
         <form method="POST" action="/create">
           <label for="new-username">Username:</label><br>
           <input type="text" id="new-username" name="username" placeholder="Choose a username" required><br>
+
           <label for="new-password">Password:</label><br>
           <input type="password" id="new-password" name="password" placeholder="Create a password" required><br>
+
           <label for="confirm-password">Confirm Password:</label><br>
           <input type="password" id="confirm-password" name="confirm_password" placeholder="Confirm password" required><br>
+
+          <label for="main-currency">Main Currency:</label><br>
+          <select id="main-currency" name="main_currency" required>
+            <option value="RON">RON</option>
+            <option value="USD">USD</option>
+            <option value="EUR">EUR</option>
+          </select><br>
+
           {% with messages = get_flashed_messages() %}
             {% if messages %}
             <div style="color: red;">{{ messages[0] }}</div>
             {% endif %}
           {% endwith %}
-          <button type="submit" class="btn btn-primary">Sign Up</button>
+          
+          <button type="submit" class="btn btn-primary mt-3">Sign Up</button>
         </form>
         <br>
-        <footer>Already have an account? <a href="/login" style="color:rgb(255, 255, 255)";>Login here.</a> </footer>
+        <footer>Already have an account? <a href="/login" style="color:rgb(255, 255, 255);">Login here.</a></footer>
       </div>
     </div>
   </div>
