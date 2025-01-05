@@ -111,8 +111,8 @@ def new_transaction():
         amount = float(request.form.get('amount'))
         merchant = request.form.get('merchant')
 
-        if amount < 0:
-            flash("Amount cannot be negative.", "error")
+        if amount <= 0:
+            flash("Amount must be positive.", "error")
             return redirect('/newtransaction')
 
         user = User.query.filter_by(username=session['username']).first()

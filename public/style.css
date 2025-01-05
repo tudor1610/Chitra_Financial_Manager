@@ -162,165 +162,165 @@ h1.main-title {
 }
 
 .transaction-form {
-    background: rgba(0, 0, 0, 0.6);  
-    border-radius: 15px;             
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3); 
-    padding: 20px;
-    max-width: 600px;
-    margin: 20px auto;
+	background: rgba(0, 0, 0, 0.6);  
+	border-radius: 15px;             
+	box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3); 
+	padding: 20px;
+	max-width: 600px;
+	margin: 20px auto;
 }
 
 .transaction-label {
-    font-size: 1.1rem;
-    color: #f1f1f1;
-    display: block;
-    margin-bottom: 8px;
+	font-size: 1.1rem;
+	color: #f1f1f1;
+	display: block;
+	margin-bottom: 8px;
 }
 
 .transaction-select, .transaction-input, .transaction-textarea {
-    font-size: 1rem;
-    width: 100%;
-    padding: 10px;
-    background-color: #ffffff;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    box-sizing: border-box;
-    margin-bottom: 15px;
+	font-size: 1rem;
+	width: 100%;
+	padding: 10px;
+	background-color: #ffffff;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	box-sizing: border-box;
+	margin-bottom: 15px;
 }
 
 .transaction-button {
-    background-color: #75eaff;
-    color: black;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 10px;
-    font-size: 1.1rem;
-    width: 100%;
-    cursor: pointer;
-    transition: background-color 0.3s;
+	background-color: #75eaff;
+	color: black;
+	padding: 12px 20px;
+	border: none;
+	border-radius: 10px;
+	font-size: 1.1rem;
+	width: 100%;
+	cursor: pointer;
+	transition: background-color 0.3s;
 }
 
 .transaction-button:hover {
-    background-color: #4ab1d8;
+	background-color: #4ab1d8;
 }
 
 .transaction-button:active {
-    background-color: #348da2;
+	background-color: #348da2;
 }
 
 form {
-    margin-top: 30px;
+	margin-top: 30px;
 }
 
 .container.mt-5 {
-    padding: 15px;
+	padding: 15px;
 }
 
 h1.text-center.mb-4 {
-    margin-bottom: 20px;
-    color: #000000;
+	margin-bottom: 20px;
+	color: #000000;
 }
 
 .flashes {
-    list-style-type: none;
-    margin: 0;
-    padding: 10px;
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    max-width: 300px;
-    z-index: 1000;
-    font-family: 'Arial', cursive;
+	list-style-type: none;
+	margin: 0;
+	padding: 10px;
+	position: fixed;
+	top: 20px;
+	right: 20px;
+	max-width: 300px;
+	z-index: 1000;
+	font-family: 'Arial', cursive;
 }
 
 .flashes li {
-    margin-bottom: 10px;
-    padding: 10px;
-    border-radius: 5px;
-    color: #ffffff;
-    font-weight: bold;
+	margin-bottom: 10px;
+	padding: 10px;
+	border-radius: 5px;
+	color: #ffffff;
+	font-weight: bold;
 }
 
 .flashes .error {
-    background-color: #f44336;
+	background-color: #f44336;
 }
 
 .flashes .success {
-    background-color: #4caf50;
+	background-color: #4caf50;
 }
 
 .flashes .info {
-    background-color: #2196f3;
+	background-color: #2196f3;
 }
 
 .flashes .warning {
-    background-color: #ff9800;
+	background-color: #ff9800;
 }
 
 .flashes li {
-    animation: slideIn 1s ease-in-out;
+	animation: slideIn 1s ease-in-out;
 }
 
 @keyframes slideIn {
-    0% {
-        opacity: 0;
-        transform: translateX(100%);
-    }
-    100% {
-        opacity: 1;
-        transform: translateX(0);
-    }
+	0% {
+		opacity: 0;
+		transform: translateX(100%);
+	}
+	100% {
+		opacity: 1;
+		transform: translateX(0);
+	}
 }
 
 .flash-messages {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    max-width: 100%;
-    align-items: center;
-    justify-content: center;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	max-width: 100%;
+	align-items: center;
+	justify-content: center;
 }
 
 .flash-message.success {
-    background-color: #4CAF50;
-    color: white;
-    border-radius: 5px;
-    padding: 10px 20px;
-    font-size: 1rem;
-    text-align: center;
-    width: 100%;
+	background-color: #4CAF50;
+	color: white;
+	border-radius: 5px;
+	padding: 10px 20px;
+	font-size: 1rem;
+	text-align: center;
+	width: 100%;
 }
 
 .flash-message.error {
-    background-color: #f44336;
-    color: white;
-    border-radius: 5px;
-    padding: 10px 20px;
-    font-size: 1rem;
-    text-align: center;
-    width: 100%;
+	background-color: #f44336;
+	color: white;
+	border-radius: 5px;
+	padding: 10px 20px;
+	font-size: 1rem;
+	text-align: center;
+	width: 100%;
 }
 
 body {
-    font-size: 1.2rem;
+	font-size: 1.2rem;
 }
 
 h1, h2, h3, h4, h5, h6 {
-    font-size: 2.5rem;
+	font-size: 2.5rem;
 }
 
 .navbar a {
-    font-size: 1.5rem;
+	font-size: 1.5rem;
 }
 
 .transaction-label, .transaction-input, .transaction-select, .transaction-textarea {
-    font-size: 1.2rem;
+	font-size: 1.2rem;
 }
 
 button, .flash-message {
-    font-size: 1.5rem;
+	font-size: 1.5rem;
 }
 
 .flash-message {
-    font-size: 1.5rem;
+	font-size: 1.5rem;
 }
