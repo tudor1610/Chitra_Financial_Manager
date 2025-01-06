@@ -2,7 +2,6 @@ from flask import Flask, request, render_template, redirect, flash, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 import time
-import random
 
 app = Flask(__name__, static_folder="public")
 app.secret_key = "yoyo"
@@ -192,6 +191,10 @@ def create_account():
     balance = float(request.form["balance"])
     user_id = session["user_id"]
 
+    if balance < 0:
+        flash("Balance cannot be a negative number.")
+        return redirect("/user")
+
     new_account = Account(account_name=name, balance=balance, user_id=user_id)
 
     try:
@@ -208,33 +211,44 @@ def create_account():
 
     return redirect("/user")
 
-def generate_card_number():
-    # Generate a random 16-digit card number (not secure, for mock purposes only)
-    return str(random.randint(1000000000000000, 9999999999999999))
-
 @app.route("/create_card", methods=["POST"])
 def create_card():
     if not session.get("authenticated"):
         flash("Please log in to create a card.")
         return redirect("/login")
 
-    # Get the account_id and card_type from the form
-    account_id = request.form["account_id"]  # Account ID selected in the dropdown
-    card_type = request.form["card_type"]    # Card type selected
+    account_id = request.form.get("account_id")
+    card_type = request.form.get("card_type")
+    card_number = request.form.get("card_number")
 
-    # Generate a random card number
-    card_number = generate_card_number()
+    # Validate card number
+    if not card_number or len(card_number) != 16 or not card_number.isdigit():
+        flash("Card number must be exactly 16 digits.")
+        return redirect("/user")
 
-    # Create the new card and associate it with the selected account
-    new_card = Card(card_number=card_number, card_type=card_type, account_id=account_id)
+    # Convert card_number to a string (if not already)
+    formatted_card_number = " ".join([card_number[i:i+4] for i in range(0, len(card_number), 4)])
 
+    # Validate account selection
+    account = Account.query.get(account_id)
+    if not account:
+        flash("Selected account does not exist.")
+        return redirect("/user")
+
+    # Create and save the new card
     try:
+        new_card = Card(
+            card_number=formatted_card_number,
+            card_type=card_type,
+            account_id=account_id
+        )
         db.session.add(new_card)
         db.session.commit()
-        flash("Card created successfully.")
+        flash("New card created successfully.")
     except Exception as e:
-        db.session.rollback()  # Rollback in case of any error
+        db.session.rollback()
         flash(f"Error creating card: {str(e)}")
+
     return redirect("/user")
 
 # Route to delete an account
