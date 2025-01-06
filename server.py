@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import io
 import base64
 from flask import jsonify
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from flask_migrate import Migrate
 
 app = Flask(__name__, static_folder="public")
@@ -24,7 +24,6 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
     balance = db.Column(db.Float, default=0.0)
-    # token = db.Column(db.String(64), unique=True, nullable=True)
 
 class Transaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -208,6 +207,89 @@ def portfolio():
     )
 
 
+# @app.route('/newtransaction', methods=['GET', 'POST'])
+# def new_transaction():
+#     if request.method == 'POST':
+#         transaction_type = request.form.get('transaction_type')
+#         date = request.form.get('date')
+#         amount = float(request.form.get('amount'))
+#         merchant = request.form.get('merchant')
+
+#         if amount <= 0:
+#             flash("Amount must be positive.", "error")
+#             return redirect('/newtransaction')
+
+#         user = User.query.filter_by(username=session['username']).first()
+#         if user.balance is None:
+#             user.balance = 0.0
+
+#         if transaction_type.lower() == "income":
+#             user.balance += amount
+#         elif transaction_type.lower() == "expense":
+#             user.balance -= amount
+
+#         transaction = Transaction(
+#             user_id=user.id,
+#             transaction_type=transaction_type,
+#             date=date,
+#             amount=amount,
+#             merchant=merchant
+#         )
+
+#         try:
+#             db.session.add(transaction)
+#             db.session.commit()
+#             flash("Transaction added successfully!", "success")
+#         except Exception as e:
+#             flash(f"Error adding transaction: {str(e)}", "error")
+
+#         return redirect('/newtransaction')
+
+#     return render_template('new_transaction.html', authenticated=session['authenticated'], username=session['username'])
+
+def add_new_transaction(user_id, transaction_type, date, amount, merchant):
+    transaction = Transaction(
+            user_id=user_id,
+            transaction_type=transaction_type,
+            date=date,
+            amount=amount,
+            merchant=merchant
+        )
+
+    db.session.add(transaction)
+    db.session.commit()
+    pass
+
+@app.route('/newdeposit', methods=['GET', 'POST'])
+def new_deposit():
+    if request.method == 'POST':
+        data = request.get_json()
+        transaction_type = data.get('transaction_type')
+        date = data.get('date')
+        amount = float(data.get('amount'))
+        merchant = data.get('merchant')
+
+        if amount <= 0:
+            flash("Amount must be positive.", "error")
+            return redirect('/newtransaction')
+
+        user = User.query.filter_by(username=session['username']).first()
+
+        if transaction_type == "Income":
+            user.balance += amount
+        elif transaction_type == "Expense":
+            user.balance -= amount
+
+        try:
+            add_new_transaction(user.id, transaction_type, date, amount, merchant)
+            flash("Transaction added successfully!", "success")
+        except Exception as e:
+            flash(f"Error adding transaction: {str(e)}", "error")
+
+        return redirect('/newtransaction')
+
+    return render_template('new_transaction.html', authenticated=session['authenticated'], username=session['username'])
+
 @app.route('/newtransaction', methods=['GET', 'POST'])
 def new_transaction():
     if request.method == 'POST':
@@ -221,25 +303,14 @@ def new_transaction():
             return redirect('/newtransaction')
 
         user = User.query.filter_by(username=session['username']).first()
-        if user.balance is None:
-            user.balance = 0.0
 
-        if transaction_type.lower() == "income":
+        if transaction_type == "Income":
             user.balance += amount
-        elif transaction_type.lower() == "expense":
+        elif transaction_type == "Expense":
             user.balance -= amount
 
-        transaction = Transaction(
-            user_id=user.id,
-            transaction_type=transaction_type,
-            date=date,
-            amount=amount,
-            merchant=merchant
-        )
-
         try:
-            db.session.add(transaction)
-            db.session.commit()
+            add_new_transaction(user.id, transaction_type, date, amount, merchant)
             flash("Transaction added successfully!", "success")
         except Exception as e:
             flash(f"Error adding transaction: {str(e)}", "error")
@@ -251,8 +322,8 @@ def new_transaction():
 @app.route("/invest")
 def invest():
     games = [
-        {"name": "Blackjack", "icon": "blackjack.png", "archive": "blackjack.zip"},
-        {"name": "Diceroyal", "icon": "diceroyal.png", "archive": "diceroyal.zip"}
+        {"name": "Blackjack", "icon": "icons/blackjack.png", "archive": "blackjack.zip"},
+        {"name": "Diceroyal", "icon": "icons/diceroyal.png", "archive": "diceroyal.zip"}
     ]
     return render_template('invest.html', games=games, authenticated=session["authenticated"], username=session["username"])
 
@@ -307,49 +378,8 @@ def update_balance():
         db.session.commit()
         return jsonify({"message": "Balance updated successfully", "balance": user.balance}), 200
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": str(e)}), 500 
 
-@app.route('/deposittransaction', methods=['POST'])
-def deposit():
-    data = request.get_json()
-
-    # Extract data from POST request
-    username = data.get('username')
-    transaction_type = data.get('transaction_type', 'income')  # Default: income
-    amount = data.get('amount', 0)
-    merchant = data.get('merchant', 'Deposit')
-    date_str = data.get('date')
-    print(f"Original date string: {date_str}, Parsed date object: {date}")
-
-    # Input validation
-    if not username or amount <= 0:
-        return jsonify({"error": "Invalid username or amount"}), 400
-
-    # Find the user in the database
-    user = User.query.filter_by(username=username).first()
-    if not user:
-        return jsonify({"error": "User not found"}), 404
-
-    try:
-        date = datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S")
-
-        # Add the amount to the balance
-        user.balance = (user.balance or 0) + amount
-
-        # Create a new transaction
-        transaction = Transaction(
-            user_id=user.id,
-            transaction_type=transaction_type,
-            date=date,
-            amount=amount,
-            merchant=merchant
-        )
-        db.session.add(transaction)
-        db.session.commit()
-
-        return jsonify({"message": "Transaction added successfully!", "balance": user.balance}), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
 
 @app.errorhandler(404)
 def error404(code):

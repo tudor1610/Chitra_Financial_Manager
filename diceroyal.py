@@ -7,6 +7,8 @@ import random
 import time
 import requests
 import sys
+import requests
+from datetime import date
 
 from pygame.locals import (
     K_UP,
@@ -74,8 +76,6 @@ for line in lines:
         username = line.split(":", 1)[1].strip()
     elif line.startswith("password:"):
         password = line.split(":", 1)[1].strip()
-#     elif line.startswith("balance:"):
-#         balance = int(line.split(":", 1)[1].strip()) 
 
 # # get_balance()
 
@@ -137,7 +137,7 @@ def update_balance(new_balance):
     }
 
     headers = {
-         "Content-Type": "application/json",  # Trimite date în format JSON
+         "Content-Type": "application/json",
          "User-Agent": "Python-requests/2.x"
     }
 
@@ -154,32 +154,29 @@ def update_balance(new_balance):
     else:
         print(f"Eroare la actualizarea balance-ului: {response.status_code}, {response.text}")
 
-def add_transaction(amount, transaction_type="income"):
-    payload = {
-        "username": username,
-        "transaction_type": transaction_type,
-        "amount": amount,
-        "merchant": "Deposit", # We specify that it is a deposit 
-        "date": time.strftime("%Y-%m-%d %H:%M:%S")  # Current date
-    }
-
+def bet_transaction(amount, merchant, transaction_type):
     headers = {
         "Content-Type": "application/json",
         "User-Agent": "Python-requests/2.x"
     }
+    
+    # Datele tranzacției
+    transaction_data = {
+        "transaction_type": transaction_type,
+        "date": str(date.today()),
+        "amount": amount,
+        "merchant": merchant
+    }
 
-    response = requests.post('http://localhost:5000/deposittransaction', json=payload, headers=headers)
+    # Trimiterea cererii POST
+    response = requests.post("http://localhost:5000/newdeposit", json=transaction_data, headers=headers)
 
     if response.status_code == 200:
-        try:
-            data = response.json()
-            print("Tranzacție adăugată:", data)
-            return data.get("balance") # Return the new balance
-        except ValueError:
-            print("Eroare la parsarea răspunsului JSON:", response.text)
+        print("Deposit successful!")
     else:
-        print(f"Eroare la adăugarea tranzacției: {response.status_code}, {response.text}")
-    return None
+        print(f"Error during deposit: {response.status_code}, {response.text}")
+
+
 
 def show_dice(dice,color):
     if color == 'black':
@@ -254,6 +251,7 @@ while running:
             # Deposit 1000 into your account   
             if event.key == K_d:
                 balance = balance + 1000
+                bet_transaction(1000, "Game deposit", "Income")
             # Play
             if event.key == K_RETURN:
                 if bet == 0:
@@ -284,6 +282,7 @@ while running:
                        pygame.mixer.music.play(loops=1)	
                        slug = 'LOSER'
                        balance = balance - bet
+                       bet_transaction(bet, "Lost bet", "Expense")
                        bet = 0
                        if balance <= 0:
                            bet = 0
@@ -294,6 +293,7 @@ while running:
                        pygame.mixer.music.play(loops=1)
                        slug = 'WINNER'
                        balance = balance + bet
+                       bet_transaction(bet, "Bet won", "Income")
                        bet = 0
                     update_balance(balance)
             if event.key == K_UP:
