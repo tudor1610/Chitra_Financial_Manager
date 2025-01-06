@@ -5,7 +5,10 @@ import time
 import matplotlib.pyplot as plt
 import io
 import base64
-from datetime import datetime, timedelta
+
+from flask import jsonify
+from datetime import datetime, timedelta, date
+from flask_migrate import Migrate
 
 app = Flask(__name__, static_folder="public")
 app.secret_key = "yoyo"
@@ -13,6 +16,9 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///financial_manager.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
+
+# Inițializează Flask-Migrate
+migrate = Migrate(app, db)
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -160,9 +166,6 @@ def calculate_balance_points(time_period, transactions, current_balance):
 
     return balances
 
-
-
-
 @app.route("/portfolio", methods=["GET", "POST"])
 def portfolio():
     if not session["authenticated"]:
@@ -203,6 +206,48 @@ def portfolio():
         graph_url=graph_url,
     )
 
+def add_new_transaction(user_id, transaction_type, date, amount, merchant):
+    transaction = Transaction(
+            user_id=user_id,
+            transaction_type=transaction_type,
+            date=date,
+            amount=amount,
+            merchant=merchant
+        )
+
+    db.session.add(transaction)
+    db.session.commit()
+    pass
+
+@app.route('/newdeposit', methods=['GET', 'POST'])
+def new_deposit():
+    if request.method == 'POST':
+        data = request.get_json()
+        transaction_type = data.get('transaction_type')
+        date = data.get('date')
+        amount = float(data.get('amount'))
+        merchant = data.get('merchant')
+
+        if amount <= 0:
+            flash("Amount must be positive.", "error")
+            return redirect('/newtransaction')
+
+        user = User.query.filter_by(username=session['username']).first()
+
+        if transaction_type == "Income":
+            user.balance += amount
+        elif transaction_type == "Expense":
+            user.balance -= amount
+
+        try:
+            add_new_transaction(user.id, transaction_type, date, amount, merchant)
+            flash("Transaction added successfully!", "success")
+        except Exception as e:
+            flash(f"Error adding transaction: {str(e)}", "error")
+
+        return redirect('/newtransaction')
+
+    return render_template('new_transaction.html', authenticated=session['authenticated'], username=session['username'])
 
 @app.route('/newtransaction', methods=['GET', 'POST'])
 def new_transaction():
@@ -217,7 +262,7 @@ def new_transaction():
             return redirect('/newtransaction')
 
         user = User.query.filter_by(username=session['username']).first()
-
+        
         if transaction_type.lower() == "income":
             user.balance += amount
         elif transaction_type.lower() == "expense":
@@ -232,8 +277,7 @@ def new_transaction():
         )
 
         try:
-            db.session.add(transaction)
-            db.session.commit()
+            add_new_transaction(user.id, transaction_type, date, amount, merchant)
             flash("Transaction added successfully!", "success")
         except Exception as e:
             flash(f"Error adding transaction: {str(e)}", "error")
@@ -244,7 +288,65 @@ def new_transaction():
 
 @app.route("/invest")
 def invest():
-    return render_template('invest.html', authenticated=session["authenticated"], username=session["username"]);
+    games = [
+        {"name": "Blackjack", "icon": "icons/blackjack.png", "archive": "blackjack.zip"},
+        {"name": "Diceroyal", "icon": "icons/diceroyal.png", "archive": "diceroyal.zip"}
+    ]
+    return render_template('invest.html', games=games, authenticated=session["authenticated"], username=session["username"])
+
+@app.route("/login/games", methods=["GET", "POST"])
+def login_games():
+    if request.method == "POST":
+        username = request.form.get("username", "")
+        password = request.form.get("password", "")
+        print("Received username: {username}, password: {password}")  # Debugging line
+        user = User.query.filter_by(username=username).first()
+        if user and check_password_hash(user.password, password):
+            session['authenticated'] = True
+            session['username'] = username
+            return 'abcdefgh12345678'
+        else:
+            return '-1'
+    return 'Please use POST method'
+
+
+@app.route("/game/balance", methods=["GET", "POST"])
+def get_balance():
+    user = User.query.filter_by(username=session.get('username')).first()
+
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    if user.balance is None:
+        user.balance = 0.0
+        db.session.commit()  # Save the change to the database
+
+    return jsonify({"balance": user.balance}), 200 # Response 200 OK
+
+
+@app.route("/game/updatebalance", methods=["POST"])
+def update_balance():
+    # Get the data from the POST request
+    data = request.get_json()
+    username = data.get("username")
+    new_balance = data.get("balance")
+
+    if not username or new_balance is None:
+        return jsonify({"error": "Missing username or balance"}), 400
+
+    # Find the user in the database
+    user = User.query.filter_by(username=username).first()
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    try:
+        # Update the balance value
+        user.balance = new_balance
+        db.session.commit()
+        return jsonify({"message": "Balance updated successfully", "balance": user.balance}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500 
+
 
 @app.errorhandler(404)
 def error404(code):
