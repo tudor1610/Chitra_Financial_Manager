@@ -152,7 +152,7 @@ def invest():
 
 @app.route('/user')
 def user_page():
-    if not session.get("authenticated"):
+    if not session["username"]:
         flash("Please log in to access your user page.")
         return redirect("/login")
     
@@ -177,7 +177,7 @@ def user_page():
 
 @app.route("/create_account", methods=["POST"])
 def create_account():
-    if not session.get("authenticated"):
+    if not session["user_id"]:
         flash("Please log in to create an account.")
         return redirect("/login")
 
@@ -208,7 +208,7 @@ def create_account():
 @app.route("/create_card", methods=["POST"])
 def create_card():
     if not session.get("authenticated"):
-        flash("Please log in to create a card.")
+        flash("Error: Please log in to create a card.")
         return redirect("/login")
 
     account_id = request.form.get("account_id")
@@ -217,16 +217,16 @@ def create_card():
 
     # Validate card number
     if not card_number or len(card_number) != 16 or not card_number.isdigit():
-        flash("Card number must be exactly 16 digits.")
+        flash("Error: Card number must be exactly 16 digits.")
         return redirect("/user")
 
     # Convert card_number to a string (if not already)
     formatted_card_number = " ".join([card_number[i:i+4] for i in range(0, len(card_number), 4)])
 
     # Validate account selection
-    account = Account.query.get(account_id)
+    account = Account.query.filter_by(id=account_id).first()
     if not account:
-        flash("Selected account does not exist.")
+        flash("Error: Selected account does not exist.")
         return redirect("/user")
 
     # Create and save the new card
@@ -240,8 +240,14 @@ def create_card():
         db.session.commit()
         flash("New card created successfully.")
     except Exception as e:
+        error_message = str(e)
+        if "UNIQUE constraint failed" in error_message:
+        # If the error is due to a duplicate card number
+            flash("Error: Card number already exists.")
+        else:
+            # Flash the full error message for other exceptions
+            flash(f"Error creating card: {error_message}")
         db.session.rollback()
-        flash(f"Error creating card: {str(e)}")
 
     return redirect("/user")
 
@@ -255,7 +261,7 @@ def delete_account():
     account_id = request.form.get("account_id")  # Get the account ID from the form
 
     if account_id:
-        account = Account.query.get(account_id)
+        account = Account.query.filter_by(id=account_id).first()
 
         if account:
             if account.balance != 0:
