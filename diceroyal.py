@@ -67,17 +67,17 @@ username = None
 password = None
 balance = None
 
-url='http://localhost:5000/login/games'
+url_connect='http://localhost:5000/login/games'
 
 for line in lines:
     if line.startswith("username:"):
         username = line.split(":", 1)[1].strip()
     elif line.startswith("password:"):
         password = line.split(":", 1)[1].strip()
-    elif line.startswith("balance:"):
-        balance = int(line.split(":", 1)[1].strip()) 
+#     elif line.startswith("balance:"):
+#         balance = int(line.split(":", 1)[1].strip()) 
 
-# get_balance()
+# # get_balance()
 
 font1 = pygame.font.SysFont('freesanbold.ttf', FONT_SIZE_TITLE)
 font2 = pygame.font.SysFont('freesanbold.ttf', FONT_SIZE_CAPTION)
@@ -102,55 +102,84 @@ def connect():
          "User-Agent": "Python-requests/2.x"
          }
     # Send the POST request
-    response = requests.post(url, data=payload)
+    response = requests.post(url_connect, data=payload)
     print(response.status_code, response.text)
     # Check the response
     return response.text
 
 def get_balance():
+    global balance
+    
+    # Send a request to the server
+    response = requests.post('http://localhost:5000/game/balance', data={"username": username})
+    
+    if response.status_code == 200:
+        try:
+            # Parse the JSON response
+            data = response.json()
+            # Update the balance variable if the answer contains the value
+            balance = data.get("balance", 0)
+            print("Balance actualizat:", balance)
+        except ValueError:
+            print("Eroare la parsarea raspunsului JSON:", response.text)
+    else:
+        print("Eroare la cererea GET balance:", response.status_code, response.text)
+
+    return balance
+
+def update_balance(new_balance):
+    global balance
+    
+    # Payload-ul cererii
     payload = {
         "username": username,
-        "auth": password
-        }
+        "balance": new_balance
+    }
 
-    # Optionally, define headers (if needed)
     headers = {
-         "Content-Type": "application/x-www-form-urlencoded",  # For form data
+         "Content-Type": "application/json",  # Trimite date în format JSON
          "User-Agent": "Python-requests/2.x"
-         }
-    # Send the POST request
-    response = requests.post(url, data=payload, headers=headers)
-    # Check the response
-    if response.status_code == 200:
-        print("Response:", response.text)
-    else:
-        print("Response:", response.text)
-    
-    
-    return
+    }
 
-def update_ballance():
+    # Send a request to the server
+    response = requests.post('http://localhost:5000/game/updatebalance', json=payload, headers=headers)
+
+    if response.status_code == 200:
+        try:
+            data = response.json()
+            balance = data.get("balance", balance)
+            print("Balance actualizat cu succes:", balance)
+        except ValueError:
+            print("Eroare la parsarea răspunsului JSON:", response.text)
+    else:
+        print(f"Eroare la actualizarea balance-ului: {response.status_code}, {response.text}")
+
+def add_transaction(amount, transaction_type="income"):
     payload = {
-        "username": "florin",
-        "auth": "abcdefgh12345678",
-        "ballance":"3800"
-        }
+        "username": username,
+        "transaction_type": transaction_type,
+        "amount": amount,
+        "merchant": "Deposit", # We specify that it is a deposit 
+        "date": time.strftime("%Y-%m-%d %H:%M:%S")  # Current date
+    }
 
-    # Optionally, define headers (if needed)
     headers = {
-         "Content-Type": "application/x-www-form-urlencoded",  # For form data
-         "User-Agent": "Python-requests/2.x"
-         }
-    # Send the POST request
-    response = requests.post(url, data=payload, headers=headers)
-    # Check the response
+        "Content-Type": "application/json",
+        "User-Agent": "Python-requests/2.x"
+    }
+
+    response = requests.post('http://localhost:5000/deposittransaction', json=payload, headers=headers)
+
     if response.status_code == 200:
-        print("Response:", response.text)
+        try:
+            data = response.json()
+            print("Tranzacție adăugată:", data)
+            return data.get("balance") # Return the new balance
+        except ValueError:
+            print("Eroare la parsarea răspunsului JSON:", response.text)
     else:
-        print("Response:", response.text)
-    
-    
-    return
+        print(f"Eroare la adăugarea tranzacției: {response.status_code}, {response.text}")
+    return None
 
 def show_dice(dice,color):
     if color == 'black':
@@ -210,8 +239,9 @@ if connect() == '-1':
     sys.exit("Failed to connect to the server.")
 
 # Run until the user asks to quit
-# balance = get_balance()
-print("Balance is:", balance)
+
+balance = get_balance()
+print("Balance este acum:", balance)
 
 while running:
 
@@ -265,6 +295,7 @@ while running:
                        slug = 'WINNER'
                        balance = balance + bet
                        bet = 0
+                    update_balance(balance)
             if event.key == K_UP:
                 bet = bet + 1
                 if bet > balance:
