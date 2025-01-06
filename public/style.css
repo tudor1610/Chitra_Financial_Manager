@@ -15,7 +15,9 @@ body {
 
 
 h1, h2, h3, h4, h5, h6 {
-  color: #000000;
+    margin-bottom: 1em;
+    color: #ffffff;
+    text-decoration: underline;
 }
 
 header {
@@ -89,6 +91,8 @@ header {
   }
 
   .home-banner {
+    position: relative;
+    top: 30px;
     background-color: #606e78;
     color: white;
     display: flex;
@@ -152,6 +156,159 @@ header {
     top: 50%;
     right: 1em;
     transform: translateY(-50%);
+}
+
+.user-page-container {
+    position: relative;
+    top: 50px;
+    display: flex;
+    margin: 1em;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+.user-page-container .flash-messages {
+    font-size: x-large;
+    list-style-type: none;
+    padding: 0;
+    margin: 1em 0;
+    color: red;
+    background-color: #ffe6e6;
+    border: 1px solid red;
+    border-radius: 5px;
+    padding: 10px;
+    position: absolute; /* Or use 'fixed' if you want it to stay visible while scrolling */
+    top: 30%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000; /* Ensure it appears above other elements */
+
+    /* Animation */
+    animation: fadeOut 8s forwards;
+}
+
+/* Keyframes for fade-out effect */
+@keyframes fadeOut {
+    0% {
+        opacity: 1;
+    }
+    75% {
+        opacity: 0;
+        height:min-content;
+    }
+    100% {
+        opacity: 0;
+        visibility: hidden;
+        height: 0;
+    }
+}
+
+.user-card {
+    background-color: #dce7db;
+    padding: 1em;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-left: 1em;
+    height: fit-content;
+    width: fit-content;
+    min-width: min-content;
+  }
+
+.user-card p {
+    color: #46555c;
+}
+
+ .user-page-container .left-container,
+ .user-page-container .actions-section {
+    position: fixed;
+    width: 25%;
+    align-items: center;
+ } 
+
+.user-page-container .left-container {
+    flex: 1;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+}
+
+.user-page-container .left-container h2 {
+    margin-bottom: 1em;
+    color: #ffffff;
+    text-decoration: underline;
+}
+
+.center-container {
+    overflow-y: scroll;
+    overflow-x: hidden;
+    flex: 1;
+    margin: 0 25%;
+    align-items: center;
+}
+  
+.center-container .accounts-section {
+    align-items: center;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+}
+
+.accounts-section .card {
+    background-color: #dce7db;
+    padding: 1em;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    height: fit-content;
+    width: 500px;
+    min-width: min-content;
+    margin-bottom: 15px;
+}
+
+.accounts-section .card p,
+.accounts-section .card li{
+    color: #46555c;
+}
+  
+@media (max-width: 1024px) {
+    .user-page-container {
+      grid-template-columns: 1fr;
+      max-width: 600px;
+    }
+    
+    .user-card,
+    .center-container,
+    .actions-section {
+      width: 100%;
+    }
+  }
+
+.actions-section {
+    margin-left: 1em;
+    display: flex;
+    right: 10px;
+    flex-direction: column;
+    gap: 1em;
+}
+
+  .actions-section .card {
+    background-color: #dce7db;
+    padding: 1em;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    height: fit-content;
+    width: 400px;
+    min-width: min-content;
+    margin-right: 10px;
+  }
+
+ .actions-section .card button {
+    margin-top: 5px;
+ }
+
+.actions-section .card label {
+    color: #46555c;
 }
 
 .container {

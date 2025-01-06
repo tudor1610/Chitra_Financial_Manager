@@ -1,151 +1,98 @@
-{% extends "_base.html" %}
+{% extends '_base.html' %}
 
 {% block content %}
-<div class="container">
-    <h1>Welcome, {{ data.username }}</h1>
-
-    <!-- User Balance -->
-    <div class="user-info">
-        <p><strong>Current Balance:</strong> {{ data.current_balance }} {{ data.main_currency }}</p>
+<div class="user-page-container">
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <ul class="flash-messages">
+            {% for message in messages %}
+            <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    {% endwith %}
+    <div class="left-container">
+        <h2>User Details</h2>
+        <div class="user-card">
+            <p><strong>Username:</strong> {{ data.username }}</p>
+            <p><strong>Current Balance:</strong> {{ data.current_balance }} {{ data.main_currency }}</p>
+        </div>
     </div>
-
-    <!-- Accounts Section -->
-    <h2>Your Accounts</h2>
-    <div class="accounts">
-        {% if data.accounts %}
-            <ul>
-                {% for account in data.accounts %}
-                    <li>
-                        <strong>Account Name:</strong> {{ account.account_name }} <br>
-                        <strong>Balance:</strong> {{ account.balance }} {{ data.main_currency }} <br>
-
-                        <!-- Display Cards for the Account -->
-                        <h4>Cards:</h4>
-                        {% if account.cards %}
-                            <form action="/delete_card" method="POST">
-                                <select name="card_id" required>
-                                    <option value="">Select a card to delete</option>
-                                    {% for card in account.cards %}
-                                        <option value="{{ card.id }}">{{ card.card_type }} - {{ card.card_number }}</option>
-                                    {% endfor %}
-                                </select>
-                                <button type="submit" class="btn btn-danger">Delete Card</button>
-                            </form>
-                        {% else %}
-                            <p>No cards associated with this account.</p>
-                        {% endif %}
-                        <a href="#" data-toggle="modal" data-target="#deleteAccountModal" data-account-id="{{ account.id }}" data-account-name="{{ account.account_name }}" class="btn btn-danger">Delete Account</a>
-                    </li>
-                {% endfor %}
-            </ul>
+  <div class="center-container">
+    <div class="accounts-section">
+        <h2>Accounts</h2>
+        {% if data.accounts|length == 0 %}
+        <div class="card">
+            <p>You have no accounts yet.</p>
+        </div>
         {% else %}
-            <p>You have no accounts yet. <a href="#" data-toggle="modal" data-target="#createAccountModal" class="btn btn-primary">Create an Account</a></p>
+        {% for account in data.accounts %}
+            <div class="card">
+            <p><strong>Account Name:</strong> {{ account.account_name }}</p>
+            <p><strong>Balance:</strong> {{ account.balance }}</p>
+            {% if account.cards|length == 0 %}
+                <p><strong>Cards:</strong> No cards associated with this account.</p>
+            {% else %}
+                <p><strong>Cards:</strong></p>
+                <ul>
+                {% for card in account.cards %}
+                    <li>{{ card.card_number }} - {{ card.card_type }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+            </div>
+        {% endfor %}
         {% endif %}
     </div>
-
-
-    <!-- Modal to create a new account -->
-    <div class="modal fade" id="createAccountModal" tabindex="-1" role="dialog" aria-labelledby="createAccountModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="createAccountModalLabel">Create New Account</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <form method="POST" action="/create_account">
-                    <div class="modal-body">
-                        <label for="account-name">Account Name:</label>
-                        <input type="text" id="account-name" name="account_name" placeholder="Enter account name" required><br>
-                        <label for="initial-balance">Initial Balance:</label>
-                        <input type="number" id="initial-balance" name="balance" placeholder="Enter initial balance" required><br>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Create Account</button>
-                    </div>
-                </form>
-            </div>
-        </div>
     </div>
 
-    <!-- Modal to create a card for an account -->
-    <div class="modal fade" id="createCardModal" tabindex="-1" role="dialog" aria-labelledby="createCardModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="createCardModalLabel">Create Card for Account</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <form method="POST" action="/create_card">
-                    <div class="modal-body">
-                        <!-- Dropdown to select the account -->
-                        <label for="account-select">Select Account:</label>
-                        <select id="account-select" name="account_id" required>
-                            <option value="" disabled selected>Select your account</option>
-                            {% for account in data.accounts %}
-                                <option value="{{ account.id }}">{{ account.account_name }}</option>
-                            {% endfor %}
-                        </select><br>
-
-                        <!-- Dropdown for card type selection -->
-                        <label for="card-type">Card Type:</label>
-                        <select id="card-type" name="card_type" required>
-                            <option value="Debit">Debit</option>
-                            <option value="Credit">Credit</option>
-                        </select><br>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Create Card</button>
-                    </div>
-                </form>
-            </div>
-        </div>
+  <div class="actions-section">
+    <h2>Create New Account</h2>
+    <div class="card">
+        <form method="POST" action="/create_account">
+        <label for="account_name">Account Name:</label>
+        <input type="text" id="account-name" name="account_name" placeholder="Enter account name" required>
+        <br>
+        <label for="balance">Initial Balance:</label>
+        <input type="number" id="initial-balance" name="balance" placeholder="Enter initial balance" required>
+        <br>
+        <button type="submit">Create Account</button>
+        </form>
     </div>
 
-    <!-- Modal to confirm account deletion -->
-    <div class="modal fade" id="deleteAccountModal" tabindex="-1" role="dialog" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="deleteAccountModalLabel">Delete Account</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <form method="POST" action="/delete_account">
-                    <div class="modal-body">
-                        <input type="hidden" name="account_id" id="account-id">
-                        <p>Are you sure you want to delete the account "<span id="account-name"></span>"? This action is irreversible.</p>
-                        <p class="text-danger">Note: You can only delete accounts with a balance of 0.</p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-danger">Delete Account</button>
-                    </div>
-                </form>
-            </div>
-        </div>
+    <h2>Create New Card</h2>
+    <div class="card">
+        <form method="post" action="/create_card">
+        <label for="select_account">Select Account:</label>
+        <select id="select_account" name="account_id">
+            {% for account in data.accounts %}
+            <option value="{{ account.id }}">{{ account.account_name }}</option>
+            {% endfor %}
+        </select>
+        <br>
+        <label for="card_type">Card Type:</label>
+        <select id="card_type" name="card_type">
+            <option value="debit">Debit</option>
+            <option value="credit">Credit</option>
+        </select>
+        <br>
+        <button type="submit">Create Card</button>
+        </form>
     </div>
+
+    <h2>Delete Account</h2>
+    <div class="card">
+        <form method="post" action="/delete_account">
+        <label for="delete_account">Select Account:</label>
+        <select id="delete_account" name="account_id">
+            {% for account in data.accounts %}
+            <option value="{{ account.id }}">{{ account.account_name }}</option>
+            {% endfor %}
+        </select>
+        <br>
+        <button type="submit">Delete Account</button>
+        </form>
+    </div>
+  </div>
 </div>
-
-{% endblock content %}
-
-{% block scripts %}
-<script>
-    // Set account ID and name for the delete modal
-    $('#deleteAccountModal').on('show.bs.modal', function (event) {
-        var button = $(event.relatedTarget);  // Button that triggered the modal
-        var accountId = button.data('account-id');  // Extract account ID from data-* attributes
-        var accountName = button.data('account-name');  // Extract account name from data-* attributes
-
-        var modal = $(this);
-        modal.find('.modal-body #account-id').val(accountId);  // Set account ID in the hidden input
-        modal.find('.modal-body #account-name').text(accountName);  // Display account name in the modal
-    });
-</script>
-{% endblock scripts %}
+{% endblock %}

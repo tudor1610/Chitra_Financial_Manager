@@ -28,8 +28,7 @@ class Account(db.Model):
     account_name = db.Column(db.String(100), nullable=False)
     balance = db.Column(db.Float, default=0.0)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)  # Foreign key to User
-    cards = db.relationship('Card', backref='account', lazy=True)  # One-to-many relationship
-
+    cards = db.relationship('Card', backref='account', lazy=True, cascade="all, delete-orphan")  # Cascade deletion
 # Card model
 class Card(db.Model):
     __tablename__ = 'cards'
@@ -65,10 +64,11 @@ def home():
         flash("Please log in to access your dashboard.")
         return redirect("/login")
 
+    user = User.query.filter_by(username=session["username"]).first()
     # Mock user data for the dashboard
     user_data = {
         "username": session["username"],
-        "current_balance": 7363.34,
+        "current_balance": user.current_balance,
         "spent_this_month": 0,
         "living_expenses": 0,
         "food_expenses": 0
@@ -174,6 +174,7 @@ def user_page():
     user_data = {
         "username": user.username,
         "id": user.id,
+        "password": user.password,
         "current_balance": user.current_balance,  # Assuming you added current_balance in the User model
         "main_currency": user.main_currency,
         "accounts": accounts
