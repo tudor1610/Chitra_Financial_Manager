@@ -5,6 +5,7 @@ import time
 import matplotlib.pyplot as plt
 import io
 import base64
+
 from flask import jsonify
 from datetime import datetime, timedelta, date
 from flask_migrate import Migrate
@@ -165,7 +166,6 @@ def calculate_balance_points(time_period, transactions, current_balance):
 
     return balances
 
-
 @app.route("/portfolio", methods=["GET", "POST"])
 def portfolio():
     if not session["authenticated"]:
@@ -205,47 +205,6 @@ def portfolio():
         transactions=transactions,
         graph_url=graph_url,
     )
-
-
-# @app.route('/newtransaction', methods=['GET', 'POST'])
-# def new_transaction():
-#     if request.method == 'POST':
-#         transaction_type = request.form.get('transaction_type')
-#         date = request.form.get('date')
-#         amount = float(request.form.get('amount'))
-#         merchant = request.form.get('merchant')
-
-#         if amount <= 0:
-#             flash("Amount must be positive.", "error")
-#             return redirect('/newtransaction')
-
-#         user = User.query.filter_by(username=session['username']).first()
-#         if user.balance is None:
-#             user.balance = 0.0
-
-#         if transaction_type.lower() == "income":
-#             user.balance += amount
-#         elif transaction_type.lower() == "expense":
-#             user.balance -= amount
-
-#         transaction = Transaction(
-#             user_id=user.id,
-#             transaction_type=transaction_type,
-#             date=date,
-#             amount=amount,
-#             merchant=merchant
-#         )
-
-#         try:
-#             db.session.add(transaction)
-#             db.session.commit()
-#             flash("Transaction added successfully!", "success")
-#         except Exception as e:
-#             flash(f"Error adding transaction: {str(e)}", "error")
-
-#         return redirect('/newtransaction')
-
-#     return render_template('new_transaction.html', authenticated=session['authenticated'], username=session['username'])
 
 def add_new_transaction(user_id, transaction_type, date, amount, merchant):
     transaction = Transaction(
@@ -303,11 +262,19 @@ def new_transaction():
             return redirect('/newtransaction')
 
         user = User.query.filter_by(username=session['username']).first()
-
-        if transaction_type == "Income":
+        
+        if transaction_type.lower() == "income":
             user.balance += amount
-        elif transaction_type == "Expense":
+        elif transaction_type.lower() == "expense":
             user.balance -= amount
+
+        transaction = Transaction(
+            user_id=user.id,
+            transaction_type=transaction_type,
+            date=date,
+            amount=amount,
+            merchant=merchant
+        )
 
         try:
             add_new_transaction(user.id, transaction_type, date, amount, merchant)
