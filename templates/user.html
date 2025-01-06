@@ -6,7 +6,7 @@
     {% if messages %}
         <ul class="flash-messages">
             {% for message in messages %}
-            <li>{{ message }}</li>
+            <li><i class="fas fa-info-circle"></i>{{ message }}</li>
             {% endfor %}
         </ul>
     {% endif %}
@@ -14,13 +14,13 @@
     <div class="left-container">
         <h2>User Details</h2>
         <div class="user-card">
-            <p><strong>Username:</strong> {{ data.username }}</p>
-            <p><strong>Current Balance:</strong> {{ data.current_balance }} {{ data.main_currency }}</p>
+            <p><strong><i class="fas fa-user"></i> Username:</strong> {{ data.username }}</p>
+            <p><strong><i class="fas fa-wallet"></i> Current Balance:</strong> {{ data.current_balance }} {{ data.main_currency }}</p>
         </div>
     </div>
   <div class="center-container">
     <div class="accounts-section">
-        <h2>Accounts</h2>
+        <h2><i class="fas fa-folder"></i> Accounts</h2>
         {% if data.accounts|length == 0 %}
         <div class="card">
             <p>You have no accounts yet.</p>
@@ -36,7 +36,7 @@
                 <p><strong>Cards:</strong></p>
                 <ul>
                 {% for card in account.cards %}
-                    <li>{{ card.card_number }} - {{ card.card_type }}</li>
+                    <li><i class="fas fa-credit-card"></i>: &nbsp;&nbsp;{{ card.card_number }} - {{ card.card_type }}</li>
                 {% endfor %}
                 </ul>
             {% endif %}
@@ -47,7 +47,7 @@
     </div>
 
   <div class="actions-section">
-    <h2>Create New Account</h2>
+    <h2><i class="fas fa-plus-circle"></i> Create New Account</h2>
     <div class="card">
         <form method="POST" action="/create_account">
         <label for="account_name">Account Name:</label>
@@ -60,7 +60,7 @@
         </form>
     </div>
 
-    <h2>Add New Card</h2>
+    <h2><i class="fas fa-plus-circle"></i>Add New Card</h2>
     <div class="card">
         <form method="post" action="/create_card">
             <label for="select_account">Select Account:</label>
@@ -84,7 +84,7 @@
     </div>
 
 
-    <h2>Delete Account</h2>
+    <h2><i class="fas fa-trash-alt"></i> Delete Account</h2>
     <div class="card">
         <form method="post" action="/delete_account">
         <label for="delete_account">Select Account:</label>

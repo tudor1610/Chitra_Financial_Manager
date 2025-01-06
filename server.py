@@ -164,17 +164,11 @@ def user_page():
     
     accounts = Account.query.filter_by(user_id=user.id).all()
 
-    # Print the accounts and cards to debug
-    for account in accounts:
-        print(f"Account: {account.account_name}")
-        for card in account.cards:
-            print(f"Card: {card.card_type}, {card.card_number}")
-
     user_data = {
         "username": user.username,
         "id": user.id,
         "password": user.password,
-        "current_balance": user.current_balance,  # Assuming you added current_balance in the User model
+        "current_balance": user.current_balance,
         "main_currency": user.main_currency,
         "accounts": accounts
     }
@@ -278,33 +272,6 @@ def delete_account():
             flash("Account not found.")
     else:
         flash("No account selected for deletion.")
-
-    return redirect("/user")
-
-# Route to delete a card
-@app.route("/delete_card", methods=["POST"])
-def delete_card():
-    if not session.get("authenticated"):
-        flash("Please log in to delete a card.")
-        return redirect("/login")
-    
-    card_id = request.form.get("card_id")  # Get the card ID from the form
-
-    if card_id:
-        card = Card.query.get(card_id)
-
-        if card:
-            try:
-                db.session.delete(card)
-                db.session.commit()
-                flash(f"Card {card.card_number} deleted successfully.")
-            except Exception as e:
-                db.session.rollback()  # Rollback in case of any error
-                flash(f"Error deleting card: {str(e)}")
-        else:
-            flash("Card not found.")
-    else:
-        flash("No card selected for deletion.")
 
     return redirect("/user")
 
