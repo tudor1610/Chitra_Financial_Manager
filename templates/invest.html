@@ -14,6 +14,11 @@
 </div>
 {% endblock buttons %}
 
-{%block content%}
-<h1>TODO: ADD INVESTING POSIBILITIES (BOOK OF RA tatiiii BOOK OF RA)</h1>
-{%endblock content%}
+{% block content %}
+<h1>Investing Opportunities</h1>
+<div class="game-container" style="display: flex; flex-wrap: wrap; gap: 20px; padding: 20px;">
+    {% for game in games %}
+	<img src="icons/diceroyal.png" alt="Descriere imagine" style="width: 100px; height: 100px;">
+    {% endfor %}
+</div>
+{% endblock content %}

@@ -1,4 +1,5 @@
 from flask import Flask, request, render_template, redirect, flash
+from flask import send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 import time
@@ -136,9 +137,69 @@ def new_transaction():
 
     return render_template('new_transaction.html', authenticated=session['authenticated'], username=session['username'])
 
+@app.route("/download/<filename>")
+def download(filename):
+    try:
+        return send_from_directory("static/archives", filename, as_attachment=True)
+    except Exception as e:
+        flash(f"Error downloading file: {str(e)}", "error")
+        return redirect("/invest")
+
+
 @app.route("/invest")
 def invest():
-    return render_template('invest.html', authenticated=session["authenticated"], username=session["username"]);
+    games = [
+        {"name": "Blackjack", "icon": "blackjack.png", "archive": "blackjack.zip"},
+        {"name": "Diceroyal", "icon": "diceroyal.png", "archive": "diceroyal.zip"}
+    ]
+    return render_template('invest.html', games=games, authenticated=session["authenticated"], username=session["username"])
+
+@app.route("/login/games", methods=["GET", "POST"])
+def login_games():
+    if request.method == "POST":
+        username = request.form.get("username", "")
+        password = request.form.get("password", "")
+        print("Received username: {username}, password: {password}")  # Debugging line
+        user = User.query.filter_by(username=username).first()
+        if user and check_password_hash(user.password, password):
+            session['authenticated'] = True
+            session['username'] = username
+            return 'abcdefgh12345678'
+        else:
+            return '-1'
+    return 'Please use POST method'
+
+
+@app.route("/game/balance", methods=["GET", "POST"])
+def get_balance():
+    if request.method == "POST":
+        username = request.form.get("username", "")
+        auth = request.form.get("auth", "")
+
+        # Query database for auth tocken
+        if auth == 'abcdefgh12345678':
+        	if username == 'miruna':
+        		return '2000'
+        	elif username =='florin':
+        		return '5500'
+        	else:
+        		return '0'
+        else:
+        	return '-1'
+
+@app.route("/game/updatebalance", methods=["GET", "POST"])
+def update_ballance():
+    error_msg = None
+    if request.method == "POST":
+        username = request.form.get("username", "")
+        auth = request.form.get("auth", "")
+        ballance = request.form.get("ballance", "")
+
+        # Query database for auth tocken
+        if auth == 'abcdefgh12345678':
+        	return 'Balance '+ballance+' for user '+username
+        else:
+        	return '-1'
 
 @app.errorhandler(404)
 def error404(code):
