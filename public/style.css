@@ -92,16 +92,16 @@ body {
       margin-top: 7px;
     }
   
-    .home-banner {
-      position: relative;
-      top: 30px;
-      background-color: #606e78;
-      color: white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 2em 0;
-      font-size: 1.5em;
+.home-banner {
+    position: relative;
+    top: 30px;
+    background-color: #606e78;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2em 0;
+    font-size: 24px;
   }
   
   .home-banner .icon {
@@ -221,6 +221,7 @@ body {
       height: fit-content;
       width: fit-content;
       min-width: min-content;
+      max-width: 350px;
     }
   
   .user-card p {
@@ -427,8 +428,7 @@ body {
     justify-content: space-between;
     align-items: flex-start;
     overflow-x: hidden;
-    width: 100%;
-    gap: 20px;
+    width: 97%;
     position: relative;
     top: 50px;
     margin: 16px;
@@ -527,7 +527,185 @@ body {
   .graph-section .time-period-buttons button:hover {
     background-color: #606e78;
   }
+
+  .new-transaction-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    overflow-x: hidden;
+    width: 97%;
+    position: relative;
+    top: 50px;
+    margin: 16px;
+  }
   
+.new-transaction-container .left-container {
+    flex: 1;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    position: fixed;
+    width: 25%;
+    align-items: center;
+}
+
+.new-transaction-container .center-container {
+    position: relative;
+    left: 12.5%;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    flex: 1;
+    margin: 0 25%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.new-transaction-container .right-container {
+    position: relative;
+    left: 0;
+    right: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    width: 25%;
+    align-items: center;
+    margin-left: 16px;
+}
+
+.right-container .card {
+    flex: 1;
+    background-color: #dce7db;
+    padding: 1em;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    position: relative;
+    margin-bottom: 10px;
+    margin-right: 15px;
+    width: fit-content;
+    height: fit-content;
+}
+
+.right-container ul {
+    list-style-type: disc;
+    padding-left: 10px;
+    padding-right: 10px;
+    margin: 0;
+}
+
+.right-container li {
+    margin: 10px;
+    color: #46555c;
+}
+
+.right-container a {
+    color: #477562;
+}
+
+.right-container a:hover {
+    color: #46555c;
+}
+
+.invest-banner {
+    position: relative;
+    top: 30px;
+    background-color: #606e78;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 26px 26px 0;
+    height: 100px;
+    font-size: 24px;
+}
+
+.invest-page-container {
+    position: relative;
+    top: 50px;
+    margin: 2em auto;
+    max-width: 1200px;
+    text-align: center;
+}
+
+.games-section {
+    display: flex;
+    justify-content: center;
+    gap: 2em;
+    margin: 2em 0;
+}
+
+.game-card {
+    background-color: #dce7db;
+    padding: 1.5em;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 300px;
+}
+
+.game-card i {
+    font-size: 3em;
+    color: #46555c;
+    margin-bottom: 0.5em;
+}
+
+.game-card h2,
+.game-card p {
+    color: #46555c;
+}
+
+.play-button {
+    background-color: #94bdaf;
+    color: #46555c;
+    padding: 0.5em 1em;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 1em;
+}
+
+.play-button:hover {
+    background-color: #2f995b;
+}
+
+.tips-section {
+    background-color: #dce7db;
+    color: #46555c;
+    padding: 1em;
+    border-radius: 8px;
+    margin: 2em 0;
+    text-align: center;
+}
+
+.tips-section h2 {
+    color: #46555c;
+}
+
+.tips-section .author {
+    font-style: italic;
+    color: #6c757d;
+}
+
+.cta-section {
+    margin: 2em 0;
+    color: #46555c;
+}
+
+.cta-button {
+    background-color: #46555c;
+    color: white;
+    padding: 0.5em 1.5em;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 24px;
+    margin-top: 15px;
+}
+
+.cta-button:hover {
+    background-color: #0056b3;
+}
   
   .container {
     text-align: center;
@@ -671,7 +849,7 @@ body {
   }  
 
 .transaction-form {
-  background: rgba(0, 0, 0, 0.6);  
+  background: #dce7db;
   border-radius: 15px;             
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3); 
   padding: 20px;
@@ -681,7 +859,7 @@ body {
 
 .transaction-label {
   font-size: 1.1rem;
-  color: #f1f1f1;
+  color: #46555c;
   display: block;
   margin-bottom: 8px;
 }
@@ -695,11 +873,12 @@ body {
   border-radius: 8px;
   box-sizing: border-box;
   margin-bottom: 15px;
+  color: #46555c;
 }
 
 .transaction-button {
-  background-color: #75eaff;
-  color: black;
+  background-color: #94bdaf;
+  color: #46555c;
   padding: 12px 20px;
   border: none;
   border-radius: 10px;

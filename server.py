@@ -5,6 +5,7 @@ import time
 import matplotlib.pyplot as plt
 import io
 import base64
+import requests
 
 from flask import jsonify
 from datetime import datetime, timedelta, date
@@ -300,8 +301,37 @@ def new_deposit():
 
     return render_template('new_transaction.html', authenticated=session['authenticated'], username=session['username'])
 
+def get_recommendations():
+    url = ('https://newsapi.org/v2/top-headlines?'
+           'country=us&'
+           'category=business&'
+           'apiKey=ae5bd604b15244d0a212757e4fd6ad50')
+
+    response = requests.get(url)
+    if response.status_code == 200:
+        articles = response.json().get("articles", [])
+        return [
+            {"title": article["title"], "author": article["author"],"url": article["url"], "description": article["description"]}
+            for article in articles[:5]
+        ]
+    return [{"title": "No recommendations available", "url": "#"}]
+
 @app.route('/newtransaction', methods=['GET', 'POST'])
 def new_transaction():
+    user = User.query.filter_by(username=session['username']).first()
+    recommendations = get_recommendations()
+
+    if not user:
+        flash("User not found.", "error")
+        return redirect('/login')
+    
+    user_data = {
+        "username": user.username,
+        "id": user.id,
+        "current_balance": user.balance,
+        "main_currency": user.main_currency
+    }
+
     if request.method == 'POST':
         transaction_type = request.form.get('transaction_type')
         date = request.form.get('date')
@@ -311,21 +341,11 @@ def new_transaction():
         if amount <= 0:
             flash("Amount must be positive.", "error")
             return redirect('/newtransaction')
-
-        user = User.query.filter_by(username=session['username']).first()
         
         if transaction_type.lower() == "income":
             user.balance += amount
         elif transaction_type.lower() == "expense":
             user.balance -= amount
-
-        transaction = Transaction(
-            user_id=user.id,
-            transaction_type=transaction_type,
-            date=date,
-            amount=amount,
-            merchant=merchant
-        )
 
         try:
             add_new_transaction(user.id, transaction_type, date, amount, merchant)
@@ -335,7 +355,7 @@ def new_transaction():
 
         return redirect('/newtransaction')
 
-    return render_template('new_transaction.html', authenticated=session['authenticated'], username=session['username'])
+    return render_template('new_transaction.html', authenticated=session['authenticated'], username=session['username'], data=user_data, recommendations=recommendations)
 
 @app.route("/invest")
 def invest():
