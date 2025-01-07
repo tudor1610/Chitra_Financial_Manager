@@ -1,64 +1,55 @@
 {% extends '_base.html' %}
 
-{% block buttons %}
-<div class="navbar">
-    <a class="nav-item nav-link" href="/home">Home</a>
-    <a class="nav-item nav-link active" href="/portfolio">Portfolio</a>
-    <a class="nav-item nav-link" href="/newtransaction">New Transaction</a>
-    <a class="nav-item nav-link" href="/invest">Invest</a>
-    {% if not authenticated %}
-    <a class="nav-item nav-link" href="/login">Login</a>
-    {% else %}
-    <a class="nav-item nav-link" href="/logout">Logout</a>
-    {% endif %}
-</div>
-{% endblock buttons %}
-
 {% block content %}
 <div class="portfolio-container">
-    <div class="transactions-table">
+    <div class="transactions-container">
         <h2>Your Transactions</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Type</th>
-                    <th>Amount</th>
-                    <th>Merchant</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for t in transactions %}
-                <tr>
-                    <td>{{ t.date }}</td>
-                    <td>{{ t.transaction_type }}</td>
-                    <td>{{ t.amount }}</td>
-                    <td>{{ t.merchant }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <div class="transactions-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Amount</th>
+                        <th>Merchant</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in transactions %}
+                    <tr>
+                        <td>{{ t.date }}</td>
+                        <td>{{ t.transaction_type }}</td>
+                        <td>{{ t.amount }}</td>
+                        <td>{{ t.merchant }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 
-    <div class="graph-section">
-        <h2>Select a time period to view the balance graph.</h2>
-        <form method="POST">
-            <div class="time-period-buttons">
-                <button type="submit" name="time_period" value="1W">1 Week</button>
-                <button type="submit" name="time_period" value="1M">1 Month</button>
-                <button type="submit" name="time_period" value="6M">6 Months</button>
-                <button type="submit" name="time_period" value="1Y">1 Year</button>
-                <button type="submit" name="time_period" value="ALL">All</button>
+    <div class="graph-container">
+        <h2>Your balance graph</h2>
+        <div class="graph-section">
+            <h2>Select a time period to view the balance graph.</h2>
+            <form method="POST">
+                <div class="time-period-buttons">
+                    <button type="submit" name="time_period" value="1W">1 Week</button>
+                    <button type="submit" name="time_period" value="1M">1 Month</button>
+                    <button type="submit" name="time_period" value="6M">6 Months</button>
+                    <button type="submit" name="time_period" value="1Y">1 Year</button>
+                    <button type="submit" name="time_period" value="ALL">All</button>
+                </div>
+            </form>
+            <br>
+            {% if graph_url %}
+            <div class="graph-container">
+                <img src="data:image/png;base64,{{ graph_url }}" alt="Balance Graph">
             </div>
-        </form>
-        <br>
-        {% if graph_url %}
-        <div class="graph-container">
-            <img src="data:image/png;base64,{{ graph_url }}" alt="Balance Graph">
+            {% else %}
+            <p>No graph available. Select a time period to generate one.</p>
+            {% endif %}
         </div>
-        {% else %}
-        <p>No graph available. Select a time period to generate one.</p>
-        {% endif %}
     </div>
 </div>
 

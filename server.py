@@ -232,16 +232,19 @@ def portfolio():
 
     dates = [b[0] for b in balances]
     values = [b[1] for b in balances]
-    plt.figure(figsize=(10, 5))
-    plt.plot(dates, values, marker="o")
-    plt.title("Balance Evolution")
-    plt.xlabel("Date")
-    plt.ylabel("Balance")
+    plt.figure(figsize=(9, 5))
+    ax = plt.gca()
+    ax.set_facecolor("#dce7db")
+    plt.plot(dates, values, color="#46555c", marker="o")
+    plt.title("Balance Evolution", color="#46555c")
+    plt.xlabel("Date", color="#46555c")
+    plt.ylabel("Balance", color="#46555c")
     plt.xticks(rotation=45)
+    plt.grid(color="#46555c", linestyle="--", linewidth=0.5)
     plt.tight_layout()
 
     buf = io.BytesIO()
-    plt.savefig(buf, format="png")
+    plt.savefig(buf, format="png", facecolor="#dce7db")
     buf.seek(0)
     graph_url = base64.b64encode(buf.getvalue()).decode()
     buf.close()
