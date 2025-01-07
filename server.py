@@ -25,6 +25,27 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
     balance = db.Column(db.Float, default=0.0)
+    main_currency = db.Column(db.String(10), nullable=False)
+    accounts = db.relationship('Account', backref='user', lazy=True)  # Relationship to another table
+
+# Account model
+class Account(db.Model):
+    __tablename__ = 'accounts'
+
+    id = db.Column(db.Integer, primary_key=True)
+    account_name = db.Column(db.String(100), nullable=False)
+    balance = db.Column(db.Float, default=0.0)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)  # Foreign key to User
+    cards = db.relationship('Card', backref='account', lazy=True, cascade="all, delete-orphan")  # Cascade deletion
+
+# Card model
+class Card(db.Model):
+    __tablename__ = 'cards'
+
+    id = db.Column(db.Integer, primary_key=True)
+    card_number = db.Column(db.String(17), unique=True, nullable=False)  # Unique card number
+    card_type = db.Column(db.String(50), nullable=False)  # e.g., "Debit", "Credit"
+    account_id = db.Column(db.Integer, db.ForeignKey('accounts.id'), nullable=False)  # Foreign key to account
 
 class Transaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -36,6 +57,12 @@ class Transaction(db.Model):
 
     user = db.relationship('User', backref=db.backref('user_transactions', lazy=True))
 
+# Mock chart data (for simplicity, not stored in the database)
+chart_data = {
+    "current_account": [2, 3, 4, 6, 3, 10, 12],
+    "savings_account_1": [10, 20, 30, 40, 50],
+    "savings_account_2": [5, 15, 25, 35, 45]
+}
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
@@ -43,6 +70,7 @@ def allowed_file(filename):
 session = {
     "authenticated": False,
     "username": None,
+    "user_id": None,
 }
 
 @app.route("/")
@@ -51,7 +79,21 @@ def default():
 
 @app.route("/home")
 def home():
-    return render_template('home.html', authenticated=session["authenticated"], username=session["username"])
+    if not session["authenticated"]:
+        flash("Please log in to access your dashboard.")
+        return redirect("/login")
+
+    user = User.query.filter_by(username=session["username"]).first()
+    # Mock user data for the dashboard
+    user_data = {
+        "username": session["username"],
+        "current_balance": user.balance,
+        "spent_this_month": 0,
+        "living_expenses": 0,
+        "food_expenses": 0
+    }
+
+    return render_template('home.html', data=user_data)
 
 @app.route("/create", methods=['GET', 'POST'])
 def create():
@@ -59,13 +101,18 @@ def create():
         username = request.form.get("username", "").strip()
         password = request.form.get("password", "").strip()
         confirm_password = request.form.get("confirm_password", "").strip()
+        main_currency = request.form.get("main_currency", "").strip()
 
-        if not username or not password or not confirm_password:
+        if not username or not password or not confirm_password or not main_currency:
             flash("All fields are required.")
             return redirect('/create')
         
         if password != confirm_password:
             flash("Passwords do not match.")
+            return redirect('/create')
+        
+        if main_currency not in ["RON", "USD", "EUR"]:
+            flash("Invalid currency selection. Please choose RON, USD, or EUR.")
             return redirect('/create')
         
         existing_user = User.query.filter_by(username=username).first()
@@ -75,14 +122,13 @@ def create():
         
         # Create new user
         hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
-        new_user = User(username=username, password=hashed_password)
+        new_user = User(username=username, password=hashed_password, balance=0.0, main_currency=main_currency)
         db.session.add(new_user)
         db.session.commit()
-        flash("Account created successfully. Please log in.")
-        time.sleep(2)
+        time.sleep(1)
         return redirect('/login')
 
-    return render_template('create_account.html')
+    return render_template('create_user.html')
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -96,6 +142,7 @@ def login():
         if user and check_password_hash(user.password, password):
             session['authenticated'] = True
             session['username'] = username
+            session["user_id"] = user.id
             return redirect('/home')
         else:
             error_msg = "Incorrect username or password"
@@ -107,6 +154,7 @@ def login():
 def logout():
     session["authenticated"] = False
     session["username"] = None
+    session["user_id"] = None
     return redirect('/')
 
 def get_balance_up_to(date, transactions, current_balance):
@@ -345,8 +393,144 @@ def update_balance():
         db.session.commit()
         return jsonify({"message": "Balance updated successfully", "balance": user.balance}), 200
     except Exception as e:
-        return jsonify({"error": str(e)}), 500 
+        return jsonify({"error": str(e)}), 500
 
+@app.route('/user')
+def user_page():
+    if not session["username"]:
+        flash("Please log in to access your user page.")
+        return redirect("/login")
+    
+    user = User.query.filter_by(username=session["username"]).first()
+
+    if user is None:
+        flash("User not found.")
+        return redirect("/login")
+    
+    accounts = Account.query.filter_by(user_id=user.id).all()
+
+    user_data = {
+        "username": user.username,
+        "id": user.id,
+        "password": user.password,
+        "current_balance": user.balance,
+        "main_currency": user.main_currency,
+        "accounts": accounts
+    }
+
+    return render_template('user.html', data=user_data)
+
+@app.route("/create_account", methods=["POST"])
+def create_account():
+    if not session["user_id"]:
+        flash("Please log in to create an account.")
+        return redirect("/login")
+
+    name = request.form["account_name"]
+    balance = float(request.form["balance"])
+    user_id = session["user_id"]
+
+    if balance < 0:
+        flash("Balance cannot be a negative number.")
+        return redirect("/user")
+
+    new_account = Account(account_name=name, balance=balance, user_id=user_id)
+
+    try:
+        db.session.add(new_account)
+        # Update the user's current balance by adding the balance of the new account
+        user = User.query.filter_by(id=user_id).first()
+        if user:
+            user.balance += balance
+        db.session.commit()
+        flash("Account created successfully.")
+    except Exception as e:
+        db.session.rollback()  # Rollback in case of any error
+        flash(f"Error creating account: {str(e)}")
+
+    return redirect("/user")
+
+@app.route("/create_card", methods=["POST"])
+def create_card():
+    if not session.get("authenticated"):
+        flash("Error: Please log in to create a card.")
+        return redirect("/login")
+
+    account_id = request.form.get("account_id")
+    card_type = request.form.get("card_type")
+    card_number = request.form.get("card_number")
+
+    # Validate card number
+    if not card_number or len(card_number) != 16 or not card_number.isdigit():
+        flash("Error: Card number must be exactly 16 digits.")
+        return redirect("/user")
+
+    # Convert card_number to a string (if not already)
+    formatted_card_number = " ".join([card_number[i:i+4] for i in range(0, len(card_number), 4)])
+
+    # Validate account selection
+    account = Account.query.filter_by(id=account_id).first()
+    if not account:
+        flash("Error: Selected account does not exist.")
+        return redirect("/user")
+
+    # Create and save the new card
+    try:
+        new_card = Card(
+            card_number=formatted_card_number,
+            card_type=card_type,
+            account_id=account_id
+        )
+        db.session.add(new_card)
+        db.session.commit()
+        flash("New card created successfully.")
+    except Exception as e:
+        error_message = str(e)
+        if "UNIQUE constraint failed" in error_message:
+        # If the error is due to a duplicate card number
+            flash("Error: Card number already exists.")
+        else:
+            # Flash the full error message for other exceptions
+            flash(f"Error creating card: {error_message}")
+        db.session.rollback()
+
+    return redirect("/user")
+
+# Route to delete an account
+@app.route("/delete_account", methods=["POST"])
+def delete_account():
+    if not session.get("authenticated"):
+        flash("Please log in to delete an account.")
+        return redirect("/login")
+    
+    account_id = request.form.get("account_id")  # Get the account ID from the form
+
+    if account_id:
+        account = Account.query.filter_by(id=account_id).first()
+
+        if account:
+            if account.balance != 0:
+                flash("You can only delete an account with a balance of 0.")
+            else:
+                try:
+                    db.session.delete(account)
+                    db.session.commit()
+                    flash(f"Account '{account.account_name}' deleted successfully.")
+                except Exception as e:
+                    db.session.rollback()  # Rollback in case of any error
+                    flash(f"Error deleting account: {str(e)}")
+        else:
+            flash("Account not found.")
+    else:
+        flash("No account selected for deletion.")
+
+    return redirect("/user")
+
+@app.route("/chart-data/<chart_type>")
+def chart_data_api(chart_type):
+    if chart_type in chart_data:
+        return jsonify(chart_data[chart_type])
+    return jsonify([]) 
 
 @app.errorhandler(404)
 def error404(code):

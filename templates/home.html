@@ -1,32 +1,86 @@
-<!--Copyright Tudor Brandibur, 2023-2024-->
 {% extends '_base.html' %}
 
-{% block buttons %}
-<div class="navbar">
-	<a class="nav-item nav-link active" href="/home">Home</a>
-	<a class="nav-item nav-link" href="/portfolio">Portfolio</a>
-	<a class="nav-item nav-link" href="/newtransaction">New Transaction</a>
-	<a class="nav-item nav-link" href="/invest">Invest</a>
-	{% if not authenticated %}
-	<a class="nav-item nav-link" href="/login">Login</a>
-	{% else %}
-	<a class="nav-item nav-link" href="/logout">Logout</a>
-	{%endif%}
-</div>
-{% endblock buttons %}
+{% block content %}
+    <div class="home-banner">
+        Be chitros, {{ data.username }}!
+        <i class="fas fa-piggy-bank icon"></i>
+    </div>
 
-{% block header%}
-{% if authenticated %}
-	<h2>Hi, {{username}}!</h2>
-{%endif%}
-{% endblock header%}
+    <div class="home-section">
+        <h2>Spotlights</h2>
+        <a href="/portfolio" class="home-see-more">See more</a>
+        <div class="home-cards">
+            <div class="home-card">
+                <h3>Spent this month</h3>
+                <p>{{ data.spent_this_month }} RON</p>
+                <i class="fas fa-coins icon"></i>
+            </div>
+            <div class="home-card">
+                <h3>Living Expenses</h3>
+                <p>{{ data.living_expenses }} RON</p>
+                <i class="fas fa-home icon"></i>
+            </div>
+            <div class="home-card">
+                <h3>Food</h3>
+                <p>{{ data.food_expenses }} RON</p>
+                <i class="fas fa-utensils icon"></i>
+            </div>
+        </div>
+    </div>
 
-{% block content%}
-<br>
-<h1 class="text-center">Welcome to Chitra!</h1>
-<br>
-<br>
-<p> BE CHITROS!</p>
+    <div class="home-section">
+        <h2>{{ data.current_balance }} RON</h2>
+        <a href="/user" class="home-see-more">See more</a>
+        <div class="home-cards">
+            <div class="home-card">
+                <h3>Current Account</h3>
+                <p>{{ data.current_balance }} RON</p>
+                <canvas id="current-account-chart" class="chart"></canvas>
+            </div>
+            <div class="home-card">
+                <h3>Savings Account 1</h3>
+                <p>{{ data.current_balance }} RON</p>
+                <canvas id="savings-account-1-chart" class="chart"></canvas>
+            </div>
+            <div class="home-card">
+                <h3>Savings Account 2</h3>
+                <p>{{ data.current_balance }} RON</p>
+                <canvas id="savings-account-2-chart" class="chart"></canvas>
+            </div>
+        </div>
+    </div>
 
 {% endblock content %}
 
+{% block scripts %}
+    {{ super() }}
+
+    <script>
+        async function fetchChartData(chartType, chartId) {
+            const response = await fetch(`/chart-data/${chartType}`);
+            const data = await response.json();
+
+            const ctx = document.getElementById(chartId).getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.map((_, index) => `Item ${index + 1}`),
+                    datasets: [{
+                        label: chartType,
+                        data: data,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 2,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                }
+            });
+        }
+
+        fetchChartData('current_account', 'current-account-chart');
+        fetchChartData('savings_account_1', 'savings-account-1-chart');
+        fetchChartData('savings_account_2', 'savings-account-2-chart');
+    </script>
+{% endblock scripts %}
