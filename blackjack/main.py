@@ -44,39 +44,28 @@ STAND_BUTTON_RECT = pygame.Rect( 75, 300, 100, 50)
 BACKGROUND = pygame.image.load("buttons/background.png").convert_alpha()
 BACKGROUND = pygame.transform.scale(BACKGROUND, (WIDTH, HEIGHT))
 
-################################################################################################################
-
+USERNAME = "coco"
 
 url_connect='http://localhost:5000/login/games'
 
 def connect():
-    payload = {
-        "username": 'lol',
-        "password": 123
-        }
-
-    # Optionally, define headers (if needed)
-    headers = {
-         "Content-Type": "application/x-www-form-urlencoded",  # For form data
-         "User-Agent": "Python-requests/2.x"
-         }
-    # Send the POST request
-    response = requests.post(url_connect, data=payload)
+    global USERNAME
+    
+    response = requests.post(url_connect)
+    USERNAME = response.text
     print(response.status_code, response.text)
     # Check the response
     return response.text
 
 def get_balance():
     global BALANCE
-    
-    # Send a request to the server
-    response = requests.post('http://localhost:5000/game/balance', data={"username": 'lol'})
+    global USERNAME
+
+    response = requests.post('http://localhost:5000/game/balance', data={"username": USERNAME})
     
     if response.status_code == 200:
         try:
-            # Parse the JSON response
             data = response.json()
-            # Update the balance variable if the answer contains the value
             BALANCE = data.get("balance", 0)
             print("Balance actualizat:", BALANCE)
         except ValueError:
@@ -88,10 +77,10 @@ def get_balance():
 
 def update_balance(new_balance):
     global BALANCE
+    global USERNAME
     
-    # Payload-ul cererii
     payload = {
-        "username": 'lol',
+        "username": USERNAME,
         "balance": new_balance
     }
 
@@ -100,7 +89,6 @@ def update_balance(new_balance):
          "User-Agent": "Python-requests/2.x"
     }
 
-    # Send a request to the server
     response = requests.post('http://localhost:5000/game/updatebalance', json=payload, headers=headers)
 
     if response.status_code == 200:
@@ -119,7 +107,6 @@ def bet_transaction(amount, merchant, transaction_type):
         "User-Agent": "Python-requests/2.x"
     }
     
-    # Datele tranzacției
     transaction_data = {
         "transaction_type": transaction_type,
         "date": str(date.today()),
@@ -134,10 +121,6 @@ def bet_transaction(amount, merchant, transaction_type):
         print("Deposit successful!")
     else:
         print(f"Error during deposit: {response.status_code}, {response.text}")
-
-
-
-##################################################################################################################
 
 
 def draw_button(text, x, y, width, height, is_hovered):
@@ -312,6 +295,8 @@ async def main():
                         if calculate_hand_value(player_hand) > 21:
                             game_over = True
                             winner = "You Busted! Dealer Wins!"
+                            bet_transaction(bet, 'Blackjack', 'Expense')
+                            update_balance(BALANCE)
                     # Stand button
                     elif STAND_BUTTON_RECT.collidepoint(event.pos):
                         player_turn = False
@@ -359,11 +344,11 @@ async def main():
                         winner = "You Win!"
                         if player_total == 21:
                             BALANCE += bet * 2.5
-                            bet_transaction(bet * 2.5, 'Blackjack', 'income')
+                            bet_transaction(bet * 2.5, 'Blackjack', 'Income')
                             update_balance(BALANCE)
                         else:
                             BALANCE += bet * 2
-                            bet_transaction(bet * 2, 'Blackjack', 'income')
+                            bet_transaction(bet * 2, 'Blackjack', 'Income')
                             update_balance(BALANCE)
                         break
                     elif dealer_total == player_total:
@@ -372,7 +357,7 @@ async def main():
                         break
                     else:
                         winner = "Dealer Wins!"
-                        bet_transaction(bet, 'Blackjack', 'expense')
+                        bet_transaction(bet, 'Blackjack', 'Expense')
                         update_balance(BALANCE)
                         break
 
