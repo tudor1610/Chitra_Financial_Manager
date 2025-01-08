@@ -496,16 +496,7 @@ def invest():
 @app.route("/login/games", methods=["GET", "POST"])
 def login_games():
     if request.method == "POST":
-        username = request.form.get("username", "")
-        password = request.form.get("password", "")
-        print("Received username: {username}, password: {password}")  # Debugging line
-        user = User.query.filter_by(username=username).first()
-        if user and check_password_hash(user.password, password):
-            session['authenticated'] = True
-            session['username'] = username
-            return 'abcdefgh12345678'
-        else:
-            return '-1'
+        return session["username"]
     return 'Please use POST method'
 
 
