@@ -1,4 +1,6 @@
 <small>Copyright Ariciu Toma, Brandibur Tudor, Iliescu Miruna-Elena, Stanciulescu Ana 322CA, 2024-2025</small>
+<br>
+<small>Github link: https://github.com/tudor1610/Chitra_Financial_Manager </small>
 
 # Chitra Financial Manager
 
