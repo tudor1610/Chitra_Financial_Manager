@@ -652,12 +652,15 @@ body {
 }
 
 .game-card {
+    display: flex;
+    flex-direction: column;
     background-color: #dce7db;
     padding: 1.5em;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     text-align: center;
     width: 300px;
+    height: fit-content;
 }
 
 .game-card i {
@@ -671,7 +674,9 @@ body {
     color: #46555c;
 }
 
-.play-button {
+.game-card .play-button {
+    position: relative;
+    top:5%;
     background-color: #94bdaf;
     color: #46555c;
     padding: 0.5em 1em;
@@ -679,6 +684,8 @@ body {
     border-radius: 4px;
     cursor: pointer;
     margin-top: 1em;
+    font-size: 20px;
+    text-decoration: none;
 }
 
 .play-button:hover {
