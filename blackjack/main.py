@@ -2,6 +2,9 @@ import pygame
 import random
 import asyncio
 import time
+import time
+import requests
+from datetime import date
 
 pygame.init()
 
@@ -40,6 +43,101 @@ STAND_BUTTON_RECT = pygame.Rect( 75, 300, 100, 50)
 
 BACKGROUND = pygame.image.load("buttons/background.png").convert_alpha()
 BACKGROUND = pygame.transform.scale(BACKGROUND, (WIDTH, HEIGHT))
+
+################################################################################################################
+
+
+url_connect='http://localhost:5000/login/games'
+
+def connect():
+    payload = {
+        "username": 'lol',
+        "password": 123
+        }
+
+    # Optionally, define headers (if needed)
+    headers = {
+         "Content-Type": "application/x-www-form-urlencoded",  # For form data
+         "User-Agent": "Python-requests/2.x"
+         }
+    # Send the POST request
+    response = requests.post(url_connect, data=payload)
+    print(response.status_code, response.text)
+    # Check the response
+    return response.text
+
+def get_balance():
+    global BALANCE
+    
+    # Send a request to the server
+    response = requests.post('http://localhost:5000/game/balance', data={"username": 'lol'})
+    
+    if response.status_code == 200:
+        try:
+            # Parse the JSON response
+            data = response.json()
+            # Update the balance variable if the answer contains the value
+            BALANCE = data.get("balance", 0)
+            print("Balance actualizat:", BALANCE)
+        except ValueError:
+            print("Eroare la parsarea raspunsului JSON:", response.text)
+    else:
+        print("Eroare la cererea GET balance:", response.status_code, response.text)
+
+    return BALANCE
+
+def update_balance(new_balance):
+    global BALANCE
+    
+    # Payload-ul cererii
+    payload = {
+        "username": 'lol',
+        "balance": new_balance
+    }
+
+    headers = {
+         "Content-Type": "application/json",
+         "User-Agent": "Python-requests/2.x"
+    }
+
+    # Send a request to the server
+    response = requests.post('http://localhost:5000/game/updatebalance', json=payload, headers=headers)
+
+    if response.status_code == 200:
+        try:
+            data = response.json()
+            BALANCE = data.get("balance", BALANCE)
+            print("Balance actualizat cu succes:", BALANCE)
+        except ValueError:
+            print("Eroare la parsarea răspunsului JSON:", response.text)
+    else:
+        print(f"Eroare la actualizarea balance-ului: {response.status_code}, {response.text}")
+
+def bet_transaction(amount, merchant, transaction_type):
+    headers = {
+        "Content-Type": "application/json",
+        "User-Agent": "Python-requests/2.x"
+    }
+    
+    # Datele tranzacției
+    transaction_data = {
+        "transaction_type": transaction_type,
+        "date": str(date.today()),
+        "amount": amount,
+        "merchant": merchant
+    }
+
+    # Trimiterea cererii POST
+    response = requests.post("http://localhost:5000/newdeposit", json=transaction_data, headers=headers)
+
+    if response.status_code == 200:
+        print("Deposit successful!")
+    else:
+        print(f"Error during deposit: {response.status_code}, {response.text}")
+
+
+
+##################################################################################################################
 
 
 def draw_button(text, x, y, width, height, is_hovered):
@@ -101,6 +199,9 @@ async def main():
     global BALANCE
     global IS_DECK_SHUFFLED
     global deck
+
+
+    BALANCE = get_balance()
     running = True
     clock = pygame.time.Clock()
 
@@ -173,6 +274,7 @@ async def main():
                             bet_text += event.unicode
 
             display_text("Bet confirmed!", 310, 400, WHITE)
+
             pygame.display.flip()
             time.sleep(1)
 
@@ -257,8 +359,12 @@ async def main():
                         winner = "You Win!"
                         if player_total == 21:
                             BALANCE += bet * 2.5
+                            bet_transaction(bet * 2.5, 'Blackjack', 'income')
+                            update_balance(BALANCE)
                         else:
                             BALANCE += bet * 2
+                            bet_transaction(bet * 2, 'Blackjack', 'income')
+                            update_balance(BALANCE)
                         break
                     elif dealer_total == player_total:
                         winner = "It's a Tie!"
@@ -266,6 +372,8 @@ async def main():
                         break
                     else:
                         winner = "Dealer Wins!"
+                        bet_transaction(bet, 'Blackjack', 'expense')
+                        update_balance(BALANCE)
                         break
 
         clock.tick(40)
@@ -281,4 +389,5 @@ async def game_loop():
             break
 
 if __name__ == "__main__":
+    connect()
     asyncio.run(game_loop())
