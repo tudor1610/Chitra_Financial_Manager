@@ -34,6 +34,9 @@ from pygame.locals import (
     K_d
 )
 
+
+LOGIN_PENDING = True
+
 pygame.mixer.init()
 pygame.init()
 clock = pygame.time.Clock()
@@ -44,6 +47,7 @@ DICE_SIZE = 180
 DICE_HALF_SIZE = DICE_SIZE/2
 FONT_SIZE_TITLE = 50
 FONT_SIZE_CAPTION = 22
+username = ""
 
 # Set up the drawing window
 screen = pygame.display.set_mode([SCREEN_WIDTH, SCREEN_HEIGHT])
@@ -51,6 +55,7 @@ pygame.display.set_caption('Dice Royal')
 
 
 running = True
+
 
 bet = 0
 balance = 1000
@@ -60,22 +65,7 @@ dice_white_color = (185,235,235)
 dice_black_color = (20,0,40)
 slug = 'Good Luck!'
 
-# Read user data
-with open("diceroyal.txt", "r") as file:
-    lines = file.readlines()
-
-# Initialize variables
-username = None
-password = None
-balance = None
-
 url_connect='http://localhost:5000/login/games'
-
-for line in lines:
-    if line.startswith("username:"):
-        username = line.split(":", 1)[1].strip()
-    elif line.startswith("password:"):
-        password = line.split(":", 1)[1].strip()
 
 # # get_balance()
 
@@ -86,14 +76,12 @@ textCaption = font2.render('[1-9] Bet [0] Cancel Bet [SPACE] Double Bet [ARROWS]
 textRect_caption = textCaption.get_rect()
 textRect_caption.center = (SCREEN_WIDTH/2, SCREEN_HEIGHT-10)
 
-textPlayer = font1.render(username, True, dice_white_color)
-textRect_player = textPlayer.get_rect()
-textRect_player.center = (DICE_SIZE+FONT_SIZE_TITLE, FONT_SIZE_TITLE)
-
-def connect():
+def connect(u,p):
+    global LOGIN_PENDING
+    global balance
     payload = {
-        "username": username,
-        "password": password
+        "username": u,
+        "password": p
         }
 
     # Optionally, define headers (if needed)
@@ -103,9 +91,12 @@ def connect():
          }
     # Send the POST request
     response = requests.post(url_connect, data=payload)
-    print(response.status_code, response.text)
+    print(response.text)
     # Check the response
-    return response.text
+    if response.text != '-1':
+        LOGIN_PENDING = False
+        balance = get_balance()
+    return response.status_code
 
 def get_balance():
     global balance
@@ -231,14 +222,110 @@ def draw_dice(n,color):
        return   
     return
 
-if connect() == '-1':
-    pygame.quit()
-    sys.exit("Failed to connect to the server.")
 
 # Run until the user asks to quit
 
 balance = get_balance()
 print("Balance este acum:", balance)
+
+
+# Colors
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+GRAY = (200, 200, 200)
+
+# Fonts
+pygame.font.init()
+FONT = pygame.font.Font(None, 36)
+
+# Screen setup
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption("Login Dialog")
+
+def render_input_box(x, y, w, h, text, active):
+    """Render an input box at a specified location."""
+    color = BLACK if active else GRAY
+    pygame.draw.rect(screen, color, (x, y, w, h), 2)
+    text_surface = FONT.render(text, True, BLACK)
+    screen.blit(text_surface, (x + 5, y + (h - text_surface.get_height()) // 2))
+    
+def logindialog():
+    global username
+    clock = pygame.time.Clock()
+    username = ""
+    password = ""
+    active_input = None
+    
+    background_image = pygame.image.load("diceroyal.jpeg")  # Replace with your image file path
+    background_image = pygame.transform.scale(background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))  # Scale to screen size
+
+    while LOGIN_PENDING:
+        #screen.fill(WHITE)
+        screen.blit(background_image, (0, 0))
+        # Event handling
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                # Check if clicking on username or password box
+                if username_box.collidepoint(event.pos):
+                    active_input = "username"
+                elif password_box.collidepoint(event.pos):
+                    active_input = "password"
+                elif login_button.collidepoint(event.pos):
+                    connect(username, password)  # Handle login button click
+                    print("loginpending:",LOGIN_PENDING)
+                else:
+                    active_input = None
+
+            elif event.type == pygame.KEYDOWN:
+                if active_input == "username":
+                    if event.key == pygame.K_BACKSPACE:
+                        username = username[:-1]
+                    else:
+                        username += event.unicode
+
+                elif active_input == "password":
+                    if event.key == pygame.K_BACKSPACE:
+                        password = password[:-1]
+                    else:
+                        password += event.unicode
+
+        # Draw UI elements
+        title = FONT.render("Login", True, BLACK)
+        screen.blit(title, ((SCREEN_WIDTH - title.get_width()) // 2, 20))
+
+        # Username input box
+        username_box = pygame.Rect(SCREEN_WIDTH/2, 60, 200, 40)
+        render_input_box(username_box.x, username_box.y, username_box.width, username_box.height, username, active_input == "username")
+        username_label = FONT.render("Username:", True, BLACK)
+        screen.blit(username_label, (SCREEN_WIDTH/2 - username_label.get_width(), 70))
+
+        # Password input box
+        password_box = pygame.Rect(SCREEN_WIDTH/2, 140, 200, 40)
+        render_input_box(password_box.x, password_box.y, password_box.width, password_box.height, "*" * len(password), active_input == "password")
+        password_label = FONT.render("Password:", True, BLACK)
+        screen.blit(password_label, (SCREEN_WIDTH/2 - password_label.get_width(), 150))
+
+        # Login button
+        login_button = pygame.Rect(SCREEN_WIDTH/2-150, 240, SCREEN_WIDTH/2-100, 40)
+        pygame.draw.rect(screen, GRAY, login_button)
+        login_text = FONT.render("Login", True, BLACK)
+        screen.blit(login_text, (login_button.x + (login_button.width - login_text.get_width()) // 2, login_button.y + (login_button.height - login_text.get_height()) // 2))
+
+        # Display the screen
+
+        if LOGIN_PENDING:
+            pygame.display.flip()
+            clock.tick(30)
+
+if LOGIN_PENDING:
+	logindialog()
+
+textPlayer = font1.render(username, True, dice_white_color)
+textRect_player = textPlayer.get_rect()
+textRect_player.center = (DICE_SIZE+FONT_SIZE_TITLE, FONT_SIZE_TITLE)
 
 while running:
 
@@ -351,7 +438,7 @@ while running:
                    bet = 100
         
     # Fill the background with white
-    screen.fill((255, 255, 255))
+    screen.fill((255, 0, 255))
     pygame.draw.rect(screen, dice_white_color, (0,SCREEN_HEIGHT-FONT_SIZE_CAPTION,SCREEN_WIDTH,SCREEN_HEIGHT))
     surf = pygame.Surface((DICE_SIZE, DICE_SIZE))
     surf = pygame.image.load("diceroyal.jpeg").convert()

@@ -1,19 +1,5 @@
 {% extends '_base.html' %}
 
-{% block buttons %}
-<div class="navbar">
-    <a class="nav-item nav-link" href="/home">Home</a>
-    <a class="nav-item nav-link" href="/portfolio">Portfolio</a>
-    <a class="nav-item nav-link active" href="/newtransaction">New Transaction</a>
-    <a class="nav-item nav-link" href="/invest">Invest</a>
-    {% if not authenticated %}
-        <a class="nav-item nav-link" href="/login">Login</a>
-    {% else %}
-        <a class="nav-item nav-link" href="/logout">Logout</a>
-    {% endif %}
-</div>
-{% endblock buttons %}
-
 {% block content %}
 <body>
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -28,25 +14,63 @@
 		{% endif %}
 	{% endwith %}
 
-    <form method="POST" class="transaction-form">
-        <h1 class="text-center mb-4">Add a New Transaction</h1>
-        
-        <label for="transaction_type" class="transaction-label">Transaction Type:</label>
-        <select id="transaction_type" name="transaction_type" class="transaction-select">
-            <option value="Income">Income</option>
-            <option value="Expense">Expense</option>
-        </select>
+    <div class="new-transaction-container">
+        <div class="left-container">
+            <h2><i class="fas fa-user-circle"></i>User Details</h2>
+            <div class="user-card">
+                <p><strong><i class="fas fa-user"></i> Username:</strong> {{ data.username }}</p>
+                <p><strong><i class="fas fa-wallet"></i> Current Balance:</strong> {{ data.current_balance }} {{ data.main_currency }}</p>
+                <p><strong><i class="fas fa-book-open"></i> Reading:</strong> We recommend some light reading because an informed user is a user with good financial planning.</p>
+            </div>
+        </div>
 
-        <label for="date" class="transaction-label">Date:</label>
-        <input type="date" id="date" name="date" class="transaction-input" required>
+        <div class="center-container">
+            <h2>Add a New Transaction</h2>
+            <form method="POST" class="transaction-form">
+                <label for="transaction_type" class="transaction-label">Transaction Type:</label>
+                <select id="transaction_type" name="transaction_type" class="transaction-select">
+                    <option value="Income">Income</option>
+                    <option value="Expense">Expense</option>
+                </select>
 
-        <label for="amount" class="transaction-label">Amount:</label>
-        <input type="number" step="0.01" id="amount" name="amount" class="transaction-input" required>
+                <label for="select_account" class="transaction-label">Select Account:</label>
+                <select id="select_account" name="account_id" class="transaction-select">
+                    {% for account in data.accounts %}
+                    <option value="{{ account.id }}">{{ account.account_name }}</option>
+                    {% endfor %}
+                </select>
 
-        <label for="merchant" class="transaction-label">Merchant:</label>
-        <textarea id="merchant" name="merchant" class="transaction-textarea" required></textarea>
+                <label for="date" class="transaction-label">Date:</label>
+                <input type="date" id="date" name="date" class="transaction-input" required>
 
-        <button type="submit" class="transaction-button">Add Transaction</button>
-    </form>
+                <label for="amount" class="transaction-label">Amount:</label>
+                <input type="number" step="0.01" id="amount" name="amount" class="transaction-input" required>
+
+                <label for="merchant" class="transaction-label">Merchant:</label>
+                <textarea id="merchant" name="merchant" class="transaction-textarea" required></textarea>
+
+                <button type="submit" class="transaction-button">Add Transaction</button>
+            </form>
+        </div>
+
+        <div class="right-container">
+            <h2>Reading Recommendations</h2>
+            <ul>
+                {% for article in recommendations %}
+                <div class="card">
+                    <li>
+                        Title: <a href="{{ article.url }}" target="_blank">{{ article.title }}</a>
+                    </li>
+                    <li>
+                        Author: {{ article.author}}
+                    </li>
+                    <li>
+                        Description: {{ article.description}}</li>
+                    </li>
+                </div>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
 </body>
 {% endblock content %}
