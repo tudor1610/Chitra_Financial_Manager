@@ -10,12 +10,19 @@ ___
 #### 1. Core Financial Management
 Transaction Management:
   - Log income and expenses with details like date, amount, and merchant.
+  - Since it's not a banking application, Chitra relies on the user to properly log in the transactions. 
+  - Even so, there are multiple fields available for completion, which offer the user a detailed overview of their activity.
 
 Balance Tracking:
 - Real-time updates of user balance, integrated with a backend server.
+- All budget modifications are made on-the-spot in the databases, including in the user.balance, selected account.balance and transaction.amount.
+- Depending on the transaction type, some changes are more precise.
+- The home page even gives the user a more detailed insight into their spending habits, by showcasing the amount of money spent in the last month.
 
 Analytics:
 - Graphical representation of income and expenses for better financial insights.
+- Going through the transactions' database, the graphs are made so that no variation in the budget is missed. 
+- There are also multiple time-period options the user can choose from, so that the graphs can be as detailed as desired.
 ___
 #### 2. Investing Made Fun with Chitra
 Here at Chitra, we believe in empowering our customers with full control over their wealth while ensuring they have fun along the way. That's why we've provided the most exhilarating way to grow your savings: *GAMBLING!*
@@ -53,7 +60,41 @@ Transaction Logging:
 - All game transactions (wins/losses) are logged as part of the user’s financial data.
 
 ___
+#### 4. Design
+Main Features:
+- Root page:
+  - the entry point in our website;
+  - new users can create an account, while loyal users can choose between logging into their existing one or simply creating another;
+- Login page
+- Create account page
+- Home page:
+  - first official page;
+  - it has two sections:
+    1. the latest spending habits are showed and broke down into important categories: Living and Food expenses;
+    2. short peek into the budget evolution of the first three accounts the user has;
+- Portfolio page:
+  - for all curious users who want to have a clear evidence of all their transactions;
+  - it has two sections:
+    1. a log of all the transactions with comprehensive details;
+    2. a customizable graph that shows the budget evolution over time;
+- Transaction page:
+  - the place where new transactions are made 😉;
+  - indulge in a light reading on the latest top 5 articles on the topic of "bussiness". Who wouldn't want to know all about the money flow?
+  - it has three useful sections:
+    1. short overview on the general budget;
+    2. the form for logging a new transaction;
+    3. the reading corner with a list of 5 articles;
+- Invest page:
+  - games, it's all about games... and maybe a little luck;
+  - there are also some great investing tips that our customers can access;
+- User page:
+  - the place where all account and card information is stored;
+  - create accounts, add cards, even delete information... everything is made possible for our lovely users;
+
+___
 ### Conclusion
-Chitra Financial Manager is more than just an app—it’s a fun and engaging way to take control of your finances. Whether you’re logging your daily expenses or trying your luck with Dice Royale and Blackjack, Chitra ensures every user has an enjoyable and empowering experience. With secure transaction handling, real-time balance tracking, and exciting investment opportunities, Chitra provides everything you need to manage and grow your wealth.
+Chitra Financial Manager is more than just an app—it’s a fun and engaging way to take control of your finances. Whether you’re logging your daily expenses or trying your luck with Dice Royale and Blackjack, Chitra ensures every user has an enjoyable and empowering experience. 
+
+With secure transaction handling, real-time balance tracking, and exciting investment opportunities, Chitra provides everything you need to manage and grow your wealth.
 
 So why wait? Start your journey to financial mastery and endless entertainment with Chitra today. Who knows—your next big win could be just around the corner!
