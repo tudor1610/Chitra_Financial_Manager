@@ -148,10 +148,22 @@ body {
   .home-card {
       flex: 1;
       background-color: #dce7db;
-      padding: 1em;
+      padding: 16px;
       border-radius: 8px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       position: relative;
+      height: fit-content;
+      width: fit-content;
+      display: flex;
+      flex-direction: column;
+  }
+
+  .home-card .chart {
+    display: block;
+    margin: 0 auto;
+    width: 450px;
+    height: 250px;
+    object-fit: contain;
   }
   
   .home-card .icon {
@@ -161,6 +173,10 @@ body {
       top: 50%;
       right: 1em;
       transform: translateY(-50%);
+  }
+
+  .home-card h3 {
+    margin: 10px 0;
   }
   
   .user-page-container {

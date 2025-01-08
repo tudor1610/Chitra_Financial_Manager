@@ -1,7 +1,8 @@
-from flask import Flask, request, render_template, redirect, flash
+from flask import Flask, request, render_template, redirect, flash, url_for
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 import time
+
 import matplotlib.pyplot as plt
 import io
 import base64
@@ -16,9 +17,9 @@ app.secret_key = "yoyo"
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///financial_manager.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-db = SQLAlchemy(app)
+db = SQLAlchemy(app) 
 
-# Inițializează Flask-Migrate
+# Initialize Flask-Migrate
 migrate = Migrate(app, db)
 
 class User(db.Model):
@@ -52,6 +53,7 @@ class Transaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     transaction_type = db.Column(db.String(10), nullable=False)
+    account_id = db.Column(db.Integer, db.ForeignKey('accounts.id'), nullable=False)
     date = db.Column(db.String(10), nullable=False)
     amount = db.Column(db.Float, nullable=False)
     merchant = db.Column(db.String(100), nullable=False)
@@ -78,6 +80,68 @@ session = {
 def default():
     return render_template('default.html', authenticated=session["authenticated"], username=session["username"])
 
+def account_get_balance_up_to(date, transactions, current_balance, account_id):
+    balance = current_balance
+    for t in transactions:
+        transaction_date = datetime.strptime(t.date, "%Y-%m-%d")
+        print(transaction_date, date)
+        if transaction_date > date and t.account_id == account_id:
+            print(t.transaction_type)
+            if t.transaction_type == "Income":
+                balance -= t.amount
+            elif t.transaction_type == "Expense":
+                balance += t.amount
+    return balance
+
+def calculate_balance_points_account_chart(transactions, current_balance, account_id):
+    current_date = datetime.now()
+    balances = []
+
+    for i in range(6):
+        date = current_date - timedelta(days=30 * i)
+        balance = account_get_balance_up_to(date, transactions, current_balance, account_id)
+        balances.append((date.strftime("%Y-%m-%d"), balance))
+    balances.reverse()
+
+    return balances
+
+def get_user_expense_summary(user_id):
+    current_date = datetime.now()
+    start_of_month = current_date.replace(day=1)
+    
+    # Get all user transactions in a single query
+    transactions = Transaction.query.filter_by(
+        user_id=user_id,
+        transaction_type="Expense"
+    ).all()
+    
+    # Initialize counters
+    spent_this_month = 0.0
+    living_expenses = 0.0
+    food_expenses = 0.0
+    
+    # Single pass through transactions
+    for transaction in transactions:
+        # Convert transaction date string to datetime object
+        transaction_date = datetime.strptime(transaction.date, "%Y-%m-%d")
+        
+        # Check if transaction is from current month
+        if transaction_date >= start_of_month:
+            spent_this_month += transaction.amount
+            # Check merchant categories
+            merchant_lower = transaction.merchant.lower()
+            if merchant_lower == "living expenses":
+                living_expenses += transaction.amount
+            elif merchant_lower == "food":
+                food_expenses += transaction.amount
+    
+    return {
+        "spent_this_month": spent_this_month,
+        "living_expenses": living_expenses,
+        "food_expenses": food_expenses
+    }
+
+
 @app.route("/home")
 def home():
     if not session["authenticated"]:
@@ -85,13 +149,53 @@ def home():
         return redirect("/login")
 
     user = User.query.filter_by(username=session["username"]).first()
+
+    if not user:
+        flash("User not found.")
+        return redirect("/login")
+    
+    accounts = Account.query.filter_by(user_id=user.id).limit(3).all()
+
+    for account in accounts:
+        transactions = Transaction.query.filter_by(user_id=account.user_id).order_by(Transaction.date.asc()).all()
+        balances = calculate_balance_points_account_chart(transactions, account.balance, account.id)
+
+        dates = [b[0] for b in balances]
+        values = [b[1] for b in balances]
+
+        plt.figure(figsize=(9, 5))
+        ax = plt.gca()
+        ax.set_facecolor("#dce7db")
+        plt.plot(dates, values, color="#46555c", marker="o")
+        plt.title("Balance Evolution", color="#46555c")
+        plt.xlabel("Date", color="#46555c")
+        plt.ylabel("Balance", color="#46555c")
+        plt.xticks(rotation=45)
+        plt.grid(color="#46555c", linestyle="--", linewidth=0.5)
+        plt.tight_layout()
+
+        buf = io.BytesIO()
+        plt.savefig(buf, format="png", facecolor="#dce7db")
+        buf.seek(0)
+        graph_url = base64.b64encode(buf.getvalue()).decode()  # Base64 encode the image
+        buf.close()
+
+        account.chart_url = f"data:image/png;base64,{graph_url}"  # Assign the image URL to the account
+
+    expense_summary = get_user_expense_summary(user.id)
+
     # Mock user data for the dashboard
     user_data = {
         "username": session["username"],
         "current_balance": user.balance,
-        "spent_this_month": 0,
-        "living_expenses": 0,
-        "food_expenses": 0
+        "spent_this_month": expense_summary["spent_this_month"],
+        "living_expenses": expense_summary["living_expenses"],
+        "food_expenses": expense_summary["food_expenses"],
+        "accounts": [
+            {"name": account.account_name, "id": account.id, "balance": account.balance,
+            "chart_url": account.chart_url}
+            for account in accounts
+        ],
     }
 
     return render_template('home.html', data=user_data)
@@ -258,10 +362,11 @@ def portfolio():
         graph_url=graph_url,
     )
 
-def add_new_transaction(user_id, transaction_type, date, amount, merchant):
+def add_new_transaction(user_id, transaction_type, account_id, date, amount, merchant):
     transaction = Transaction(
             user_id=user_id,
             transaction_type=transaction_type,
+            account_id= account_id,
             date=date,
             amount=amount,
             merchant=merchant
@@ -273,6 +378,21 @@ def add_new_transaction(user_id, transaction_type, date, amount, merchant):
 
 @app.route('/newdeposit', methods=['GET', 'POST'])
 def new_deposit():
+    user = User.query.filter_by(username=session['username']).first()
+    recommendations = get_recommendations()
+
+    if not user:
+        flash("User not found.", "error")
+        return redirect('/login')
+    
+    user_data = {
+        "username": user.username,
+        "id": user.id,
+        "current_balance": user.balance,
+        "main_currency": user.main_currency,
+        "accounts": user.accounts
+    }
+
     if request.method == 'POST':
         data = request.get_json()
         transaction_type = data.get('transaction_type')
@@ -284,22 +404,24 @@ def new_deposit():
             flash("Amount must be positive.", "error")
             return redirect('/newtransaction')
 
-        user = User.query.filter_by(username=session['username']).first()
+        account = Account.query.filter_by(user_id=user.id).first()
 
         if transaction_type == "Income":
             user.balance += amount
+            account.balance += amount
         elif transaction_type == "Expense":
             user.balance -= amount
+            account.balance -= amount
 
         try:
-            add_new_transaction(user.id, transaction_type, date, amount, merchant)
+            add_new_transaction(user.id, transaction_type, account.id, date, amount, merchant)
             flash("Transaction added successfully!", "success")
         except Exception as e:
             flash(f"Error adding transaction: {str(e)}", "error")
 
         return redirect('/newtransaction')
 
-    return render_template('new_transaction.html', authenticated=session['authenticated'], username=session['username'])
+    return render_template('new_transaction.html', authenticated=session['authenticated'], username=session['username'], data=user_data, recommendations=recommendations)
 
 def get_recommendations():
     url = ('https://newsapi.org/v2/top-headlines?'
@@ -329,11 +451,13 @@ def new_transaction():
         "username": user.username,
         "id": user.id,
         "current_balance": user.balance,
-        "main_currency": user.main_currency
+        "main_currency": user.main_currency,
+        "accounts": user.accounts
     }
 
     if request.method == 'POST':
         transaction_type = request.form.get('transaction_type')
+        account_id = request.form.get('account_id')
         date = request.form.get('date')
         amount = float(request.form.get('amount'))
         merchant = request.form.get('merchant')
@@ -342,13 +466,17 @@ def new_transaction():
             flash("Amount must be positive.", "error")
             return redirect('/newtransaction')
         
+        account = Account.query.filter_by(id=account_id).first()
+        
         if transaction_type.lower() == "income":
             user.balance += amount
+            account.balance += amount
         elif transaction_type.lower() == "expense":
             user.balance -= amount
+            account.balance -= amount
 
         try:
-            add_new_transaction(user.id, transaction_type, date, amount, merchant)
+            add_new_transaction(user.id, transaction_type, account_id, date, amount, merchant)
             flash("Transaction added successfully!", "success")
         except Exception as e:
             flash(f"Error adding transaction: {str(e)}", "error")
@@ -384,8 +512,9 @@ def login_games():
 @app.route("/game/balance", methods=["GET", "POST"])
 def get_balance():
     user = User.query.filter_by(username=session.get('username')).first()
+    account = Account.query.filter_by(user_id=user.id).first()
 
-    if not user:
+    if not user or not account:
         return jsonify({"error": "User not found"}), 404
 
     if user.balance is None:
@@ -407,12 +536,16 @@ def update_balance():
 
     # Find the user in the database
     user = User.query.filter_by(username=username).first()
-    if not user:
+    account = Account.query.filter_by(user_id=user.id).first()
+
+    if not user or not account:
         return jsonify({"error": "User not found"}), 404
 
     try:
         # Update the balance value
+        difference = new_balance - user.balance
         user.balance = new_balance
+        account.balance == difference
         db.session.commit()
         return jsonify({"message": "Balance updated successfully", "balance": user.balance}), 200
     except Exception as e:

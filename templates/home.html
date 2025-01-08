@@ -31,55 +31,14 @@
         <h2>{{ data.current_balance }} RON</h2>
         <a href="/user" class="home-see-more">See more</a>
         <div class="home-cards">
-            <div class="home-card">
-                <h3>Current Account</h3>
-                <p>{{ data.current_balance }} RON</p>
-                <canvas id="current-account-chart" class="chart"></canvas>
-            </div>
-            <div class="home-card">
-                <h3>Savings Account 1</h3>
-                <p>{{ data.current_balance }} RON</p>
-                <canvas id="savings-account-1-chart" class="chart"></canvas>
-            </div>
-            <div class="home-card">
-                <h3>Savings Account 2</h3>
-                <p>{{ data.current_balance }} RON</p>
-                <canvas id="savings-account-2-chart" class="chart"></canvas>
-            </div>
+            {% for account in data.accounts %}
+                <div class="home-card">
+                    <h3>{{ account.name }}</h3>
+                    <p>{{ account.balance }} RON</p>
+                    <img src="{{ account.chart_url }}" alt="{{ account.name }} Chart" class="chart">
+                </div>
+            {% endfor %}
         </div>
     </div>
 
 {% endblock content %}
-
-{% block scripts %}
-    {{ super() }}
-
-    <script>
-        async function fetchChartData(chartType, chartId) {
-            const response = await fetch(`/chart-data/${chartType}`);
-            const data = await response.json();
-
-            const ctx = document.getElementById(chartId).getContext('2d');
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: data.map((_, index) => `Item ${index + 1}`),
-                    datasets: [{
-                        label: chartType,
-                        data: data,
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        borderWidth: 2,
-                        fill: false
-                    }]
-                },
-                options: {
-                    responsive: true,
-                }
-            });
-        }
-
-        fetchChartData('current_account', 'current-account-chart');
-        fetchChartData('savings_account_1', 'savings-account-1-chart');
-        fetchChartData('savings_account_2', 'savings-account-2-chart');
-    </script>
-{% endblock scripts %}

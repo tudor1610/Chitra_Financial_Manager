@@ -33,6 +33,13 @@
                     <option value="Expense">Expense</option>
                 </select>
 
+                <label for="select_account" class="transaction-label">Select Account:</label>
+                <select id="select_account" name="account_id" class="transaction-select">
+                    {% for account in data.accounts %}
+                    <option value="{{ account.id }}">{{ account.account_name }}</option>
+                    {% endfor %}
+                </select>
+
                 <label for="date" class="transaction-label">Date:</label>
                 <input type="date" id="date" name="date" class="transaction-input" required>
 
