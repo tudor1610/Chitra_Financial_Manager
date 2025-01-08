@@ -1,4 +1,6 @@
 <small>Copyright Ariciu Toma, Brandibur Tudor, Iliescu Miruna-Elena, Stanciulescu Ana 322CA, 2024-2025</small>
+<br>
+<small>Github link: https://github.com/tudor1610/Chitra_Financial_Manager </small>
 
 # Chitra Financial Manager
 
@@ -91,6 +93,51 @@ Main Features:
   - the place where all account and card information is stored;
   - create accounts, add cards, even delete information... everything is made possible for our lovely users;
 
+___
+### Technologies used
+- Frontend:
+  - <strong>HTML, CSS</strong> for styling;
+  - <strong>Font Awesome icons</strong> for visual elements like the piggy bank and food utensils;
+- Backend:
+  - <strong>Flask</strong> for handling routing and server-side logic;
+  - <strong>SQLAlchemy</strong> for managing the database and fetching financial data;
+  - <strong>Matplotlib</strong> for chart generation;
+  - <strong>Pygame</strong> as main game development library;
+  - <strong>HTTP/REST</strong> for server communication through the *requets* library;
+  - <strong>News API</strong> integration for financial and business recommendations;
+ 
+___
+### Instructions
+- First time, try running the code by writing: ```python3 server.py``` in the Chitra_Financial_Manager/ directory;
+- If that way fails, write:
+```
+  sudo apt install python3-virtualenv
+
+  virtualenv -p python3 venv_name
+
+  source venv_name/bin/activate
+
+  python3 server.py
+```
+- If there are still errors, install the suggested dependencies;
+- If you want to easily play the games available in the Invest page, make sure the server is running and then:
+  - for Diceroyal: write ```python3 diceroyal.py``` in the Chitra_financial_Manager/ directory;
+  - for Blackjack: write ```python3 main.py``` in the Chitra_Financial_Manager/blackjack/ directory;
+ 
+___
+### Workload
+- Ariciu Toma: developed the entire logic of making and tracking transactions, which also required making the Portfolio and Transaction pages;
+- Brandibur Tudor: devised the initial logic of the server, the first rough design of the website and made the Blackjack game;
+- Iliescu Miruna: made the Diceroyal game and was the first to figure out how to create a connection between the server and the games and how to add downloadable execs in the Invest Page;
+- Stanciulescu Ana: designed the website so that the user could benefit from a consistent page aspect, which also implied coding the logic of the Home and User pages;
+
+___
+### Dificulties
+- This project was challenging from start to finish:
+  1. It was the first project where we had to also make the frontend. Only Ana Stanciulescu and Tudor Brandibur had some small knowledge on designing websites with HTML from past optional courses. They managed in the end to make the website look pretty through a lot of trial-and-error.
+  2. Nobody knew anything about making games. But Miruna Iliescu and Tudor Brandibur took on the challenge. The game logic wasn't as hard to write as making the games communicate with the server. After trying multiple methods of getting the user's balance from the database, the problem was resolved through sending requests to the server by referencing some methods inside it.
+  3. Since there were a lot of things to be done in order to finish the project, we ended up simultaneously modifying the server.py, each person on their own branch. This led to multiple conflicts when trying to open a pull request. Some were fixed and merged, others not.
+  4. There were also some issues with the databases, but Toma Ariciu fixed them by creating multiple database models with enough fields inside to gain a comprehensive profile on each user.
 ___
 ### Conclusion
 Chitra Financial Manager is more than just an app—it’s a fun and engaging way to take control of your finances. Whether you’re logging your daily expenses or trying your luck with Dice Royale and Blackjack, Chitra ensures every user has an enjoyable and empowering experience. 
