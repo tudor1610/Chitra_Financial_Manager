@@ -14,7 +14,7 @@ Transaction Management:
 Balance Tracking:
 - Real-time updates of user balance, integrated with a backend server.
 
-Analytics (Coming Soon):
+Analytics:
 - Graphical representation of income and expenses for better financial insights.
 ___
 #### 2. Investing Made Fun with Chitra
